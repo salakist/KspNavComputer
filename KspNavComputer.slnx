@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Api/">
+    <Project Path="src/Api/KspNavComputer.Api.csproj" />
+  </Folder>
+  <Folder Name="/src/Core/">
+    <Project Path="src/Core/KspNavComputer.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+  <Folder Name="/tests/Core/">
+    <Project Path="tests/Core/KspNavComputer.Core.Tests.csproj" />
+  </Folder>
+</Solution>

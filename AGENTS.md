@@ -44,19 +44,32 @@ KspNavComputer/
 └── README.md                                       — contributor setup
 ```
 
-> `src/`, `tests/`, and `scripts/checks/` do not exist yet. They are created in Increment 1.
-
 ---
 
 ## Build and test
 
-> Not yet available. Commands will be added here at the end of Increment 1.
-> Expected commands once established:
-> ```powershell
-> dotnet build
-> dotnet test
-> ./scripts/checks/run-checks.ps1
-> ```
+```powershell
+# Build all .NET projects
+dotnet build
+
+# Run all xUnit tests
+dotnet test
+
+# Start both API + frontend in separate windows (http://localhost:5000 / :5173)
+pwsh scripts/start-app.ps1
+
+# Stop both components
+pwsh scripts/stop-app.ps1
+
+# Start the API only (http://localhost:5000)
+cd src/Api ; dotnet run
+
+# Start the frontend dev server only (http://localhost:5173)
+cd src/Web ; npm run dev
+
+# Production frontend build
+cd src/Web ; npm run build
+```
 
 ---
 
@@ -64,7 +77,7 @@ KspNavComputer/
 
 | Increment | Description | Status |
 |-----------|-------------|--------|
-| 1a | Scaffold + one-way circular transfer | not started |
+| 1a | Scaffold + one-way circular transfer | complete |
 | 1b | Round trip | not started |
 | 1c | Inclined / elliptical parking orbits | not started |
 | 2  | Precise Maneuver export | not started |

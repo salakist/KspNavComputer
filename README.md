@@ -60,3 +60,18 @@ Tokens expire after 60 minutes. Regenerate if a `gh` call returns an auth error.
 ### Commit and PR policy
 
 See [`COMMIT-POLICY.md`](COMMIT-POLICY.md).
+
+---
+
+## Credits and inspirations
+
+| Reference | Used for |
+|-----------|----------|
+| [Transfer Window Planner](https://github.com/TriggerAu/TransferWindowPlanner) (TriggerAu) | Inspiration for porkchop-plot transfer window visualisation (Increment 3) |
+| [Launch Window Planner](https://alexmoon.github.io/ksp/) (alexmoon) | Inspiration for the overall mission-planning UX and delta-v presentation |
+| Bate, Mueller & White — *[Fundamentals of Astrodynamics](https://www.amazon.com/dp/0486600610)* (1971), §5.3 | Universal-variable Lambert solver (Stumpff C/S functions, bisection on ψ) |
+| Izzo — *[Revisiting Lambert's Problem](https://link.springer.com/article/10.1007/s10569-015-9617-9)* (2015) | Reference for multi-revolution Lambert extensions |
+| [KSP Wiki — Celestial bodies](https://wiki.kerbalspaceprogram.com/wiki/Category:Celestial_bodies) | Gravitational parameters, radii, SOI radii, and orbital elements for all stock bodies |
+| [Precise Maneuver mod](https://github.com/hxtk/KSP-Precise-Maneuver) | Target format for maneuver-node copy-paste export (Increment 2) |
+| [Outer Planets Mod](https://github.com/Kopernicus/Outer-Planets-Mod) | Body data for OPM bodies (Increment 4) |
+| [Minor Planets Expansion](https://github.com/ProximaCentauri-star/MinorPlanetsExpansion) | Body data for MPE bodies (Increment 4) |
