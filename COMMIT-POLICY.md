@@ -96,6 +96,13 @@ gh pr create `
 
 PR title must follow the same Conventional Commit format as the commit summary line.
 
+**Adding changes to an open PR:**
+
+Push new commits — do not amend or force-push onto a branch with an open PR.
+Each follow-up change (fixes, review feedback, additions) must be a fresh commit on the
+same branch. Commits will be squashed on merge, so the on-branch history does not need to
+be clean.
+
 **Merge policy:**
 - PRs require **1 approving review** (the repository owner) before merge
 - An agent may open and push to a PR without approval
