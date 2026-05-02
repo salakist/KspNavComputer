@@ -5,9 +5,6 @@ Handles transfer windows, delta-v budgets, burn details, and copy-paste into the
 Precise Maneuver mod — including bodies added by Outer Planets Mod and Minor Planets
 Expansion.
 
-See [`local-docs/planning.md`](local-docs/planning.md) for the full feature roadmap
-and increment plan.
-
 ---
 
 ## Developer setup
