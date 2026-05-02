@@ -1,0 +1,4 @@
+/local-docs/*
+**/.env
+**/*.pem
+.vscode/*
