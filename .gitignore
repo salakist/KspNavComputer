@@ -3,9 +3,8 @@
 **/.env
 **/*.pem
 
-# VS Code (keep .vscode/settings.json, extensions.json — ignore personal files)
+# VS Code (keep shared config files — ignore personal/machine-specific settings)
 .vscode/*
-!.vscode/settings.json
 !.vscode/extensions.json
 !.vscode/launch.json
 !.vscode/tasks.json

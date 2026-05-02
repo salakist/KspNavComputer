@@ -134,9 +134,12 @@ Never bypass hooks with `--no-verify`.
 
 ### Step 2 — Documentation alignment
 
-Review the staged diff and update any `AGENTS.md` files whose described responsibilities,
-key files, or dependencies changed. No other documentation updates are required unless
-the staged diff directly affects them.
+Review the staged diff and update any of the following documents if their described
+responsibilities, key files, or dependencies changed:
+
+- **`AGENTS.md`** files — architecture, file descriptions, conventions for the affected area
+- **`README.md`** — credits/inspirations table when a new external reference is introduced;
+  developer setup section when tooling or scripts change
 
 ---
 
