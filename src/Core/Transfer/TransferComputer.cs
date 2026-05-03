@@ -43,23 +43,31 @@ public static class TransferComputer
         var (r2, v2Body) = KeplerSolver.StateAt(p.Destination.Orbit!, mu, arrivalUT);
 
         // ---- 2. Lambert solver → heliocentric transfer velocities ----
-        var (vTransfer1, vTransfer2) = LambertSolver.Solve(r1, r2, p.TimeOfFlight, mu);
+        // Try both prograde (counter-clockwise) and retrograde (clockwise) arcs
+        // and keep the solution with the lower total Δv.  This mirrors what
+        // alexmoon's LWP and TriggerAu's TWP do: both evaluate all solutions
+        // and return the minimum-Δv option.
+        var (vT1p, vT2p) = LambertSolver.Solve(r1, r2, p.TimeOfFlight, mu, prograde: true);
+        var (vT1r, vT2r) = LambertSolver.Solve(r1, r2, p.TimeOfFlight, mu, prograde: false);
 
-        // ---- 3a. Ejection Δv (departure body) ----
-        double dvEject = ComputeManeuverDv(
-            parkingOrbit:  p.OriginOrbit,
-            body:          p.Origin,
-            vTransfer:     vTransfer1,
-            vBody:         v1Body
-        );
+        double dvEjectP  = ComputeManeuverDv(p.OriginOrbit,      p.Origin,      vT1p, v1Body);
+        double dvInsertP = ComputeManeuverDv(p.DestinationOrbit, p.Destination, vT2p, v2Body);
 
-        // ---- 3b. Insertion Δv (destination body) ----
-        double dvInsert = ComputeManeuverDv(
-            parkingOrbit:  p.DestinationOrbit,
-            body:          p.Destination,
-            vTransfer:     vTransfer2,
-            vBody:         v2Body
-        );
+        double dvEjectR  = ComputeManeuverDv(p.OriginOrbit,      p.Origin,      vT1r, v1Body);
+        double dvInsertR = ComputeManeuverDv(p.DestinationOrbit, p.Destination, vT2r, v2Body);
+
+        // ---- 3. Pick cheaper arc ----
+        double dvEject, dvInsert;
+        if (dvEjectP + dvInsertP <= dvEjectR + dvInsertR)
+        {
+            dvEject  = dvEjectP;
+            dvInsert = dvInsertP;
+        }
+        else
+        {
+            dvEject  = dvEjectR;
+            dvInsert = dvInsertR;
+        }
 
         return new TransferResult(
             DepartureUT:      departureUT,
@@ -78,13 +86,18 @@ public static class TransferComputer
     /// Converts a heliocentric transfer velocity vector into a parking-orbit
     /// ejection (or capture) Δv.
     ///
-    /// The v-infinity (hyperbolic excess) at the body is:
+    /// The v-infinity (hyperbolic excess) at the SOI boundary is:
     ///   v∞ = |v_transfer − v_body|
     ///
-    /// For a circular parking orbit at radius r = R_body + altitude, the
-    /// circular speed is v_c = √(μ_body / r) and the periapsis speed of the
-    /// hyperbolic escape trajectory is v_p = √(v∞² + 2·μ_body/r).
+    /// For a circular parking orbit at radius r = R_body + altitude the
+    /// circular speed is v_c = √(μ_body / r).  The periapsis speed of the
+    /// hyperbolic escape trajectory, corrected for the finite SOI radius, is:
+    ///   v_p = √(v∞² + 2·μ_body/r − 2·μ_body/r_SOI)
     /// The required Δv = v_p − v_c.
+    ///
+    /// The SOI correction (−2μ/r_SOI) matches the formulas used by both
+    /// alexmoon's Launch Window Planner and TriggerAu's Transfer Window Planner.
+    /// Omitting it overestimates Δv by ~10–15 m/s for Kerbin departures.
     /// </summary>
     private static double ComputeManeuverDv(
         ParkingOrbit parkingOrbit, CelestialBody body,
@@ -93,8 +106,9 @@ public static class TransferComputer
         double vInf   = (vTransfer - vBody).Magnitude;
         double muBody = body.GravParam;
         double r      = body.Radius + parkingOrbit.Altitude;
+        double rSoi   = body.SphereOfInfluence;
         double vCirc  = Math.Sqrt(muBody / r);
-        double vPeri  = Math.Sqrt(vInf * vInf + 2.0 * muBody / r);
+        double vPeri  = Math.Sqrt(vInf * vInf + 2.0 * muBody / r - 2.0 * muBody / rSoi);
         return Math.Abs(vPeri - vCirc);
     }
 }

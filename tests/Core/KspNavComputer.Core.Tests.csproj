@@ -24,4 +24,10 @@
     <ProjectReference Include="..\..\src\Core\KspNavComputer.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Data\reference-transfers.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
