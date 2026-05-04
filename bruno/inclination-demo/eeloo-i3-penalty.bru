@@ -1,0 +1,32 @@
+meta {
+  name: Eeloo i_dest=3° (below arrival asymptote — plane-change penalty expected)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/transfer
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "origin": "Kerbin",
+    "destination": "Eeloo",
+    "departureUT": 20000000,
+    "timeOfFlight": 40000000,
+    "originAltitude": 100000,
+    "destinationAltitude": 100000,
+    "destinationInclination": 3
+  }
+}
+
+// Eeloo's orbital inclination ~6.15° means the arrival asymptote sits
+// several degrees out of the reference plane (|α_arr| > 3° likely).
+// When |α_arr| > i_dest=3°, ΔI_arr = |α_arr| − 3° > 0 → plane-change cost added.
+// Expect insertion.deltaV > 3814 m/s and insertion.vector.normal ≠ 0.

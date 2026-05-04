@@ -1,0 +1,28 @@
+meta {
+  name: Kerbin → Eeloo
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/api/transfer
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "origin": "Kerbin",
+    "destination": "Eeloo",
+    "departureUT": 20000000,
+    "timeOfFlight": 40000000,
+    "originAltitude": 100000,
+    "destinationAltitude": 100000
+  }
+}
+
+// LWP reference: ejection 13289.7 m/s, insertion 3814.2 m/s, total 17103.9 m/s

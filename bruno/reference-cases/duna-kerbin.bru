@@ -1,0 +1,29 @@
+meta {
+  name: Duna → Kerbin
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/api/transfer
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "origin": "Duna",
+    "destination": "Kerbin",
+    "departureUT": 10000000,
+    "timeOfFlight": 5184000,
+    "originAltitude": 60000,
+    "destinationAltitude": 100000
+  }
+}
+
+// LWP reference: ejection 2138.1 m/s, insertion 2771.3 m/s, total 4909.5 m/s
+// Non-Kerbin origin — validates origin body generalisation

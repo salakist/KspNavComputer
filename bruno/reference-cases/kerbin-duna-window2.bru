@@ -1,0 +1,28 @@
+meta {
+  name: Kerbin → Duna (window 2, 60 km capture)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/transfer
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "origin": "Kerbin",
+    "destination": "Duna",
+    "departureUT": 14256000,
+    "timeOfFlight": 5616000,
+    "originAltitude": 100000,
+    "destinationAltitude": 60000
+  }
+}
+
+// LWP reference: ejection 8135.1 m/s, insertion 4797.4 m/s, total 12932.5 m/s

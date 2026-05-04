@@ -1,0 +1,28 @@
+meta {
+  name: Kerbin → Dres
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/api/transfer
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "origin": "Kerbin",
+    "destination": "Dres",
+    "departureUT": 40000000,
+    "timeOfFlight": 10000000,
+    "originAltitude": 100000,
+    "destinationAltitude": 100000
+  }
+}
+
+// LWP reference: ejection 5755.2 m/s, insertion 2824.3 m/s, total 8579.5 m/s

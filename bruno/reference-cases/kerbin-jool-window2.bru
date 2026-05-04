@@ -1,0 +1,28 @@
+meta {
+  name: Kerbin → Jool (window 2, 200 km capture)
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/transfer
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "origin": "Kerbin",
+    "destination": "Jool",
+    "departureUT": 30000000,
+    "timeOfFlight": 16416000,
+    "originAltitude": 100000,
+    "destinationAltitude": 200000
+  }
+}
+
+// LWP reference: ejection 9298.6 m/s, insertion 3310.4 m/s, total 12608.9 m/s
