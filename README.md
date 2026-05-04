@@ -70,7 +70,14 @@ Tokens expire after 60 minutes. Regenerate if a `gh` call returns an auth error.
 
 ### Commit and PR policy
 
-See [`COMMIT-POLICY.md`](COMMIT-POLICY.md).
+See [`docs/commit-policy.md`](docs/commit-policy.md).
+
+---
+
+## Design documentation
+
+Architecture decisions, algorithm references, and increment planning live in [`docs/`](docs/).
+See [`docs/AGENTS.md`](docs/AGENTS.md) for the file map.
 
 ---
 

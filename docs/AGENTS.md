@@ -10,6 +10,10 @@ It is tracked in git (unlike `local-docs/`, which is gitignored).
 | File | Contents |
 |------|----------|
 | [`initial-brief.md`](initial-brief.md) | The original brief as written before any planning — verbatim |
+| [`commit-policy.md`](commit-policy.md) | Agent commit policy: git identity, branch naming, commit format, PR workflow |
+| [`body-data-schema.md`](body-data-schema.md) | CelestialBody and OrbitalElements field reference; body inventory |
+| [`algorithms/lambert.md`](algorithms/lambert.md) | Lambert solver: normalised variables, arc selection, multi-revolution, velocity reconstruction |
+| [`algorithms/delta-v.md`](algorithms/delta-v.md) | Transfer Δv pipeline: Kepler propagation, Lambert, maneuver calculation, burn UT |
 | [`planning/overview.md`](planning/overview.md) | Problem statement, architecture decisions, design principles, licensing |
 | [`planning/roadmap.md`](planning/roadmap.md) | Increment status table and one-line description of each increment |
 | `planning/increments/increment-N.md` | Plan + actuals for each increment (see below) |

@@ -36,6 +36,11 @@ KspNavComputer/
 ├── tests/
 │   └── Core/          KspNavComputer.Core.Tests    — xUnit unit tests
 ├── bruno/                                          — Bruno API collection (reference cases + inclination demo)
+├── docs/                                           — tracked design and policy docs (see docs/AGENTS.md)
+│   ├── algorithms/                                 — algorithm reference docs (Lambert, Δv pipeline)
+│   ├── planning/                                   — increment planning, roadmap, overview
+│   ├── body-data-schema.md                         — CelestialBody / OrbitalElements field reference
+│   └── commit-policy.md                            — commit and PR workflow policy
 ├── scripts/
 │   ├── get-agent-token.ps1                         — salakist-agent GitHub App token
 │   ├── hooks/
@@ -43,7 +48,6 @@ KspNavComputer/
 │   └── checks/
 │       └── run-checks.ps1                          — quality gate (created end of Increment 1)
 ├── AGENTS.md                                       — this file
-├── COMMIT-POLICY.md                                — commit and PR workflow policy
 └── README.md                                       — contributor setup
 ```
 
@@ -111,7 +115,7 @@ Each sub-folder `AGENTS.md` is created when that folder is first scaffolded.
 
 ## Key policies and references
 
-- **Commit and PR policy**: [`COMMIT-POLICY.md`](COMMIT-POLICY.md)
+- **Commit and PR policy**: [`docs/commit-policy.md`](docs/commit-policy.md)
 - **Contributor setup**: [`README.md`](README.md)
 - **Planning and increments**: [`local-docs/planning.md`](local-docs/planning.md) (gitignored)
 - **Branch naming**: Conventional Branch format — `<type>/<description>`
