@@ -52,7 +52,7 @@ public sealed class ReferenceRoundTripTests
         return JsonSerializer.Deserialize<List<ReferenceCase>>(json, options)!;
     }
 
-    public static IEnumerable<object[]> ReferenceCaseData()
+    public static IEnumerable<object?[]> ReferenceCaseData()
     {
         foreach (var c in LoadCases())
             yield return [
@@ -63,8 +63,8 @@ public sealed class ReferenceRoundTripTests
                 c.OutboundEjectionDeltaV, c.OutboundInsertionDeltaV, c.OutboundTotalDeltaV,
                 c.ReturnEjectionDeltaV,   c.ReturnInsertionDeltaV,   c.ReturnTotalDeltaV,
                 c.TotalDeltaV,
-                c.OutboundEjectionAngleDeg, c.OutboundEjectionInclinationDeg,
-                c.ReturnEjectionAngleDeg,   c.ReturnEjectionInclinationDeg
+                (object?)c.OutboundEjectionAngleDeg, (object?)c.OutboundEjectionInclinationDeg,
+                (object?)c.ReturnEjectionAngleDeg,   (object?)c.ReturnEjectionInclinationDeg
             ];
     }
 

@@ -48,14 +48,14 @@ public sealed class ReferenceTransferTests
         return JsonSerializer.Deserialize<List<ReferenceCase>>(json, options)!;
     }
 
-    public static IEnumerable<object[]> ReferenceCaseData()
+    public static IEnumerable<object?[]> ReferenceCaseData()
     {
         foreach (var c in LoadCases())
             yield return [c.Description, c.Origin, c.Destination, c.DepartureUT,
                           c.TimeOfFlight, c.ParkingOrbitAltitude,
                           c.DestinationOrbitAltitude, c.TotalDeltaV,
                           c.EjectionDeltaV, c.InsertionDeltaV,
-                          c.EjectionAngleDeg, c.EjectionInclinationDeg];
+                          (object?)c.EjectionAngleDeg, (object?)c.EjectionInclinationDeg];
     }
 
     [Theory]

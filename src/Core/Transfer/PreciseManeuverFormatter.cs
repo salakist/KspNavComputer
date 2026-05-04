@@ -27,8 +27,8 @@ public static class PreciseManeuverFormatter
         var lines = new System.Collections.Generic.List<string>
         {
             "Precise Maneuver Information",
-            $"{"Depart at:".PadRight(16)}{date}",
-            $"{"       UT:".PadRight(16)}{ut}",
+            "Depart at:".PadRight(16) + date,
+            "       UT:".PadRight(16) + ut,
         };
 
         if (burn.Ejection is { } ej
@@ -37,16 +37,16 @@ public static class PreciseManeuverFormatter
         {
             // Positive = "to prograde", negative = "to retrograde" (PM mod convention)
             string angleStr = ej.AngleDeg >= 0
-                ? $"{ej.AngleDeg.ToString("F2", ic)}° to prograde"
-                : $"{(-ej.AngleDeg).ToString("F2", ic)}° to retrograde";
-            lines.Add($"{"Ejection Angle:".PadRight(16)}{angleStr}");
-            lines.Add($"{"Ejection Inc.:".PadRight(16)}{ej.InclinationDeg.ToString("F2", ic)}°");
+                ? ej.AngleDeg.ToString("F2", ic) + "° to prograde"
+                : (-ej.AngleDeg).ToString("F2", ic) + "° to retrograde";
+            lines.Add("Ejection Angle:".PadRight(16) + angleStr);
+            lines.Add("Ejection Inc.:".PadRight(16) + ej.InclinationDeg.ToString("F2", ic) + "°");
         }
 
-        lines.Add($"{"Prograde \u0394v:".PadRight(16)}{burn.Vector.Prograde.ToString("F1", ic)} m/s");
-        lines.Add($"{"Normal \u0394v:".PadRight(16)}{burn.Vector.Normal.ToString("F1", ic)} m/s");
-        lines.Add($"{"Radial \u0394v:".PadRight(16)}{burn.Vector.Radial.ToString("F1", ic)} m/s");
-        lines.Add($"{"Total \u0394v:".PadRight(16)}{(long)Math.Round(burn.DeltaV)} m/s");
+        lines.Add("Prograde \u0394v:".PadRight(16) + burn.Vector.Prograde.ToString("F1", ic) + " m/s");
+        lines.Add("Normal \u0394v:".PadRight(16) + burn.Vector.Normal.ToString("F1", ic) + " m/s");
+        lines.Add("Radial \u0394v:".PadRight(16) + burn.Vector.Radial.ToString("F1", ic) + " m/s");
+        lines.Add("Total \u0394v:".PadRight(16) + (long)Math.Round(burn.DeltaV) + " m/s");
 
         return string.Join("\n", lines);
     }
