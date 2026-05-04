@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Globalization;
 using KspNavComputer.Core.Time;
 
@@ -11,37 +12,25 @@ public static class PreciseManeuverFormatter
 {
     /// <summary>
     /// Returns the Precise Maneuver plaintext block for the given burn.
-    /// Year is 0-indexed; day is 1-indexed (matching the mod's display convention).
+    /// Year and day are 0-indexed (matching KSP's display convention and the PM mod).
     /// All decimal separators use invariant culture (period).
-    /// Ejection angle and inclination lines are included when
-    /// <see cref="Burn.Ejection"/> is non-null and finite.
+    /// Ejection angle and inclination are NOT included — the PM mod treats that
+    /// line as a node repositioning command on paste, which would shift the UT.
     /// </summary>
     public static string Format(Burn burn)
     {
         var c    = KspTime.ToKspCalendar(burn.BurnUT);
-        var date = $"{c.Year - 1}y, {c.Day}d, {c.Hour}h, {c.Minute}m, {c.Second}s";
+        var date = $"{c.Year - 1}y, {c.Day - 1}d, {c.Hour}h, {c.Minute}m, {c.Second}s";
         var ut   = (long)Math.Round(burn.BurnUT);
 
         var ic = CultureInfo.InvariantCulture;
 
-        var lines = new System.Collections.Generic.List<string>
+        var lines = new List<string>
         {
             "Precise Maneuver Information",
             "Depart at:".PadRight(16) + date,
             "       UT:".PadRight(16) + ut,
         };
-
-        if (burn.Ejection is { } ej
-            && !double.IsNaN(ej.AngleDeg)
-            && !double.IsNaN(ej.InclinationDeg))
-        {
-            // Positive = "to prograde", negative = "to retrograde" (PM mod convention)
-            string angleStr = ej.AngleDeg >= 0
-                ? ej.AngleDeg.ToString("F2", ic) + "° to prograde"
-                : (-ej.AngleDeg).ToString("F2", ic) + "° to retrograde";
-            lines.Add("Ejection Angle:".PadRight(16) + angleStr);
-            lines.Add("Ejection Inc.:".PadRight(16) + ej.InclinationDeg.ToString("F2", ic) + "°");
-        }
 
         lines.Add("Prograde \u0394v:".PadRight(16) + burn.Vector.Prograde.ToString("F1", ic) + " m/s");
         lines.Add("Normal \u0394v:".PadRight(16) + burn.Vector.Normal.ToString("F1", ic) + " m/s");
