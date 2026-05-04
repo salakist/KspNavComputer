@@ -112,7 +112,7 @@ internal static class PlaneChangeComputer
         });
 
         // ---- Final transfer with optimal θ ----
-        return ComputeWithAngle(r1, r2, v2Body, n0, tof, t0, mu,
+        return ComputeWithAngle(r1, r2, n0, tof, t0, mu,
                                 xOpt, relativeInclination);
     }
 
@@ -139,7 +139,7 @@ internal static class PlaneChangeComputer
 
     private static (Vector3d VT1, Vector3d VT2, PlaneChangeBurn PlaneChange)?
         ComputeWithAngle(
-            Vector3d r1, Vector3d r2, Vector3d v2Body,
+            Vector3d r1, Vector3d r2,
             Vector3d n0,
             double tof, double t0, double mu,
             double x, double relativeInclination)
