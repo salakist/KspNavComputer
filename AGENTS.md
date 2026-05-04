@@ -128,8 +128,8 @@ When making code changes, update the corresponding `docs/` file **in the same co
 | Changed file(s) | Update this doc |
 |-----------------|----------------|
 | `LambertSolver.cs`, `KeplerSolver.cs` | [`docs/algorithms/lambert.md`](docs/algorithms/lambert.md) |
-| `ManeuverComputer.cs`, `TransferComputer.cs` | [`docs/algorithms/delta-v.md`](docs/algorithms/delta-v.md) |
-| `PlaneChangeComputer.cs`, `PorkchopComputer.cs`, `TransferType.cs` | [`docs/algorithms/porkchop.md`](docs/algorithms/porkchop.md) |
+| `ManeuverComputer.cs`, `TransferComputer.cs`, `PlaneChangeComputer.cs` | [`docs/algorithms/delta-v.md`](docs/algorithms/delta-v.md) |
+| `PorkchopComputer.cs`, `TransferType.cs` | [`docs/algorithms/porkchop.md`](docs/algorithms/porkchop.md) |
 | `CelestialBody.cs`, `OrbitalElements.cs`, `BodyDatabase.cs` | [`docs/body-data-schema.md`](docs/body-data-schema.md) |
 | Commit/PR workflow changes | [`docs/commit-policy.md`](docs/commit-policy.md) |
 | Increment scoped or delivered | [`docs/planning/roadmap.md`](docs/planning/roadmap.md) + relevant `increment-N.md` |

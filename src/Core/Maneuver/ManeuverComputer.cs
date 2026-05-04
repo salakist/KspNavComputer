@@ -30,23 +30,16 @@ internal static class ManeuverComputer
 {
     internal static Burn Compute(ManeuverParameters p)
     {
-        ParkingOrbit parkingOrbit = p.ParkingOrbit;
-        CelestialBody body        = p.Body;
-        Vector3d vTransfer        = p.TransferVelocity;
-        Vector3d vBody            = p.BodyVelocity;
-        bool isEjection           = p.IsEjection;
-        double refUT              = p.RefUT;
-
-        double muBody = body.GravParam;
-        double rPeri  = body.Radius + parkingOrbit.Altitude;
-        double rSoi   = body.SphereOfInfluence;
-        double e      = parkingOrbit.Eccentricity;
+        double muBody = p.Body.GravParam;
+        double rPeri  = p.Body.Radius + p.ParkingOrbit.Altitude;
+        double rSoi   = p.Body.SphereOfInfluence;
+        double e      = p.ParkingOrbit.Eccentricity;
 
         // Parking orbit periapsis speed: √(μ·(1+e)/r). Equals v_circ when e=0.
         double vPark = Math.Sqrt(muBody * (1.0 + e) / rPeri);
 
         // Hyperbolic excess velocity vector and periapsis speed.
-        Vector3d vInfVec    = vTransfer - vBody;
+        Vector3d vInfVec    = p.TransferVelocity - p.BodyVelocity;
         double   vInf       = vInfVec.Magnitude;
         double   vHyperPeri = Math.Sqrt(vInf * vInf + 2.0 * muBody / rPeri - 2.0 * muBody / rSoi);
 
@@ -59,7 +52,7 @@ internal static class ManeuverComputer
         double burnUT;
         if (vInf < 1e-9)
         {
-            burnUT = refUT; // degenerate: no meaningful hyperbolic arc
+            burnUT = p.RefUT; // degenerate: no meaningful hyperbolic arc
         }
         else
         {
@@ -68,13 +61,13 @@ internal static class ManeuverComputer
             double cosHF   = (rSoi / sma + 1.0) / eHyp;
             double hfSoi   = Math.Acosh(cosHF);
             double transit = Math.Sqrt(sma * sma * sma / muBody) * (eHyp * Math.Sinh(hfSoi) - hfSoi);
-            burnUT = isEjection ? refUT - transit : refUT + transit;
+            burnUT = p.IsEjection ? p.RefUT - transit : p.RefUT + transit;
         }
 
         // ---- Ejection: combined speed-up + plane-change at periapsis ----
-        if (isEjection)
+        if (p.IsEjection)
         {
-            EjectionDetails? ejDetails = ComputeEjectionDetails(vInfVec, rPeri, body, vBody);
+            EjectionDetails? ejDetails = ComputeEjectionDetails(vInfVec, rPeri, p.Body, p.BodyVelocity);
 
             if (Math.Abs(vInfVec.Z) < 1e-9 || vInf < 1e-9)
             {
@@ -83,7 +76,7 @@ internal static class ManeuverComputer
             }
 
             double alpha  = Math.Asin(Math.Clamp(vInfVec.Z / vInf, -1.0, 1.0));
-            double deltaI = Math.Max(0.0, Math.Abs(alpha) - parkingOrbit.Inclination);
+            double deltaI = Math.Max(0.0, Math.Abs(alpha) - p.ParkingOrbit.Inclination);
 
             if (deltaI < 1e-9)
             {
@@ -99,7 +92,7 @@ internal static class ManeuverComputer
 
         // ---- Insertion: deceleration + optional plane-change into destination orbit ----
         // i_dest = 0 → pure deceleration ("capture into natural arrival plane").
-        double iDest = parkingOrbit.Inclination;
+        double iDest = p.ParkingOrbit.Inclination;
         if (iDest < 1e-9 || Math.Abs(vInfVec.Z) < 1e-9 || vInf < 1e-9)
         {
             double dv0 = vPark - vHyperPeri; // negative = retrograde

@@ -27,23 +27,22 @@ public static class PorkchopComputer
     /// Derives the min/max time-of-flight range for a porkchop grid using the
     /// same Hohmann-based heuristic as LWP.
     /// </summary>
-    public static (double MinTof, double MaxTof) AutoTofRange(
-        CelestialBody origin, CelestialBody destination, double mu)
+    public static AutoTofRangeResult AutoTofRange(AutoTofRangeParameters p)
     {
-        double rOrigin = origin.Orbit!.SemiMajorAxis;
-        double rDest   = destination.Orbit!.SemiMajorAxis;
+        double rOrigin = p.Origin.Orbit!.SemiMajorAxis;
+        double rDest   = p.Destination.Orbit!.SemiMajorAxis;
 
         double hohmannA   = (rOrigin + rDest) / 2.0;
-        double hohmannTof = Math.PI * Math.Sqrt(hohmannA * hohmannA * hohmannA / mu);
+        double hohmannTof = Math.PI * Math.Sqrt(hohmannA * hohmannA * hohmannA / p.Mu);
 
         // Destination's orbital period.
         double destPeriod = 2.0 * Math.PI
-                          * Math.Sqrt(rDest * rDest * rDest / mu);
+                          * Math.Sqrt(rDest * rDest * rDest / p.Mu);
 
         double minTof = Math.Max(hohmannTof - destPeriod, hohmannTof / 2.0);
         double maxTof = minTof + Math.Min(2.0 * destPeriod, hohmannTof);
 
-        return (minTof, maxTof);
+        return new AutoTofRangeResult(minTof, maxTof);
     }
 
     // -------------------------------------------------------------------------
@@ -60,7 +59,9 @@ public static class PorkchopComputer
             throw new ArgumentException("Origin must orbit a central body.");
 
         double mu = p.Origin.Parent.GravParam;
-        var (minTof, maxTof) = AutoTofRange(p.Origin, p.Destination, mu);
+        var tofRangeResult = AutoTofRange(new AutoTofRangeParameters(p.Origin, p.Destination, mu));
+        double minTof = tofRangeResult.MinTof;
+        double maxTof = tofRangeResult.MaxTof;
 
         int rows = p.GridRows;
         int cols = p.GridCols;
