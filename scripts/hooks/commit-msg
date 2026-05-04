@@ -1,0 +1,114 @@
+#!/bin/sh
+# scripts/hooks/commit-msg
+#
+# Enforces Conventional Commit format for all commits (humans and agents).
+# Adds an agent-specific layer for salakist-agent: requires the Agent trailer
+# and blocks if a non-agent commit includes one.
+
+COMMIT_MSG_FILE="$1"
+
+if [ -z "$COMMIT_MSG_FILE" ] || [ ! -f "$COMMIT_MSG_FILE" ]; then
+    echo "ERROR: commit-msg hook did not receive a valid commit message file."
+    exit 1
+fi
+
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+if [ -z "$REPO_ROOT" ]; then
+    echo "ERROR: Unable to determine the repository root."
+    exit 1
+fi
+
+cd "$REPO_ROOT" || exit 1
+
+# ── Configuration (override via git config if needed) ───────────────────────
+
+AGENT_NAME="$(git config --get kspnavcomputer.agentName 2>/dev/null)"
+AGENT_EMAIL="$(git config --get kspnavcomputer.agentEmail 2>/dev/null)"
+AGENT_TRAILER_VALUE="$(git config --get kspnavcomputer.agentTrailer 2>/dev/null)"
+
+# Defaults matching the repo-configured agent identity
+[ -z "$AGENT_NAME" ]          && AGENT_NAME="salakist-agent"
+[ -z "$AGENT_EMAIL" ]         && AGENT_EMAIL="salakist-agent@local"
+[ -z "$AGENT_TRAILER_VALUE" ] && AGENT_TRAILER_VALUE="GitHub Copilot"
+
+AUTHOR_NAME="$(git config --get user.name 2>/dev/null)"
+AUTHOR_EMAIL="$(git config --get user.email 2>/dev/null)"
+EXPECTED_AGENT_LINE="Agent: $AGENT_TRAILER_VALUE"
+
+COMMITLINT_PREFIX="$REPO_ROOT/scripts"
+COMMITLINT_CONFIG="$COMMITLINT_PREFIX/commitlint.config.cjs"
+
+# ── Agent identity checks ────────────────────────────────────────────────────
+
+IS_AGENT_AUTHOR=0
+if [ "$AUTHOR_NAME" = "$AGENT_NAME" ] || [ "$AUTHOR_EMAIL" = "$AGENT_EMAIL" ]; then
+    IS_AGENT_AUTHOR=1
+fi
+
+HAS_AGENT_TRAILER=0
+if grep -Fqi "Agent:" "$COMMIT_MSG_FILE"; then
+    HAS_AGENT_TRAILER=1
+fi
+
+HAS_EXPECTED_TRAILER=0
+if grep -Fqi "$EXPECTED_AGENT_LINE" "$COMMIT_MSG_FILE"; then
+    HAS_EXPECTED_TRAILER=1
+fi
+
+# Agent commit without expected trailer
+if [ "$IS_AGENT_AUTHOR" -eq 1 ] && [ "$HAS_EXPECTED_TRAILER" -ne 1 ]; then
+    echo "ERROR: Agent-authored commits must include the trailer '$EXPECTED_AGENT_LINE'."
+    echo ""
+    echo "Current identity:"
+    echo "  user.name  = ${AUTHOR_NAME:-<unset>}"
+    echo "  user.email = ${AUTHOR_EMAIL:-<unset>}"
+    echo ""
+    echo "Example:"
+    echo "  feat(core): add transfer window helper"
+    echo ""
+    echo "  $EXPECTED_AGENT_LINE"
+    exit 1
+fi
+
+# Non-agent commit with an Agent trailer
+if [ "$IS_AGENT_AUTHOR" -ne 1 ] && [ "$HAS_AGENT_TRAILER" -eq 1 ]; then
+    echo "ERROR: Commits that include an 'Agent:' trailer must use the configured agent identity."
+    echo ""
+    echo "Agent identity:"
+    echo "  user.name  = $AGENT_NAME"
+    echo "  user.email = $AGENT_EMAIL"
+    exit 1
+fi
+
+# ── Conventional Commit validation (all commits) ─────────────────────────────
+
+if ! command -v npx >/dev/null 2>&1; then
+    echo "ERROR: Conventional Commit validation requires Node.js (npx) on PATH."
+    echo "Run 'cd scripts && npm install' after installing Node.js."
+    exit 1
+fi
+
+if [ ! -f "$COMMITLINT_CONFIG" ]; then
+    echo "ERROR: Conventional Commit config not found at '$COMMITLINT_CONFIG'."
+    exit 1
+fi
+
+if [ ! -d "$COMMITLINT_PREFIX/node_modules/@commitlint" ]; then
+    echo "ERROR: commitlint dependencies are not installed."
+    echo "Run: cd $COMMITLINT_PREFIX && npm install"
+    exit 1
+fi
+
+if ! npx --no-install --prefix "$COMMITLINT_PREFIX" commitlint \
+        --config "$COMMITLINT_CONFIG" --edit "$COMMIT_MSG_FILE"; then
+    echo ""
+    echo "Expected format: <type>(<optional scope>): <description>"
+    echo "Allowed types: feat fix docs style refactor perf test build ci chore ops"
+    echo "Examples:"
+    echo "  feat(core): add Lambert multi-revolution solver"
+    echo "  fix(api): correct inclination unit conversion"
+    echo "  docs(planning): update increment-2 plan"
+    exit 1
+fi
+
+exit 0

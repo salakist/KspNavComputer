@@ -1,0 +1,43 @@
+name: Quality Gate — PR
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  quality-gate:
+    name: quality-gate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Web dependencies
+        working-directory: src/Web
+        run: npm ci
+
+      - name: Install commitlint dependencies
+        working-directory: scripts
+        run: npm ci
+
+      - name: Restore .NET packages
+        run: dotnet restore KspNavComputer.slnx
+
+      - name: Run changed-code quality gate
+        env:
+          KSPNAV_PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          KSPNAV_PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: pwsh scripts/checks/run-checks.ps1

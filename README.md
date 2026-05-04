@@ -38,14 +38,19 @@ git config --local --unset user.email
 
 ### Git hooks
 
-Run once after cloning to activate the versioned hooks in `scripts/hooks/`:
+Run once after cloning to install all versioned hooks and commitlint dependencies:
 
 ```powershell
-git config core.hooksPath scripts/hooks
+pwsh scripts/setup/setup-hooks.ps1
 ```
 
-This enables the `prepare-commit-msg` hook that auto-appends the
-`Agent: GitHub Copilot` trailer when committing as `salakist-agent`.
+This installs:
+- `pre-commit` — runs changed-code quality gate before every commit
+- `commit-msg` — enforces Conventional Commit format and agent trailer policy
+- `pre-push` — blocks direct push to main; enforces Conventional Branch names
+- `prepare-commit-msg` — auto-appends `Agent: GitHub Copilot` trailer for `salakist-agent`
+
+To create a correctly-named branch: `pwsh scripts/setup/new-branch.ps1 feat/my-feature`
 
 ### salakist-agent GitHub App — token generation
 
