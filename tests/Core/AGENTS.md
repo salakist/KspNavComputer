@@ -11,10 +11,11 @@ xUnit test project for `KspNavComputer.Core`.
 | `KeplerSolverTests.cs` | Eccentric anomaly solver; vis-viva speed verification for Kerbin and Mun |
 | `LambertSolverTests.cs` | 90° circular-orbit quarter-turn; departure & arrival speed = circular speed |
 | `TransferComputerTests.cs` | Kerbin→Duna Δv in plausible range; Kerbin→Jool finite positive; bad-parent guard |
-| `ReferenceTransferTests.cs` | Theory tests comparing `TransferComputer` output against LWP reference values for 6 one-way transfers; all must pass within ±1% |
+| `ReferenceTransferTests.cs` | Theory tests comparing `TransferComputer` output against LWP reference values for 10 one-way transfers; Δv within ±1%; ejection angle and inclination within ±0.5° |
 | `RoundTripTransferTests.cs` | 6 structural tests: timing chain, positive Δv values, TotalDeltaV sum, plausible range, greater-than-outbound, same-body throws |
-| `ReferenceRoundTripTests.cs` | Theory tests comparing `ComputeRoundTrip` output against LWP oracle for 2 round-trip cases; all 7 Δv fields within ±1% |
+| `ReferenceRoundTripTests.cs` | Theory tests comparing `ComputeRoundTrip` output against LWP oracle for 2 round-trip cases; all 7 Δv fields within ±1%; ejection angle and inclination within ±0.5° for both legs |
 | `InclinedEllipticalOrbitTests.cs` | 8 analytical tests for 1c: inclination monotonicity, eccentricity vis-viva reduction (e=0.3, e=0.5 for ejection and insertion), independence assertions |
+| `PreciseManeuverFormatterTests.cs` | 9 tests: KSP calendar formatting, UT line, ejection/insertion block structure, ejection angle lines (prograde/retrograde), line-ordering assertion |
 
 ## Known limitations in tests
 
@@ -39,11 +40,15 @@ xUnit test project for `KspNavComputer.Core`.
   | Kerbin→Eeloo | 20 000 000 s | 40 000 000 s |
   | Kerbin→Eve | 3 000 000 s | 4 320 000 s |
   | Kerbin→Moho | 1 800 000 s | 3 456 000 s |
+  | Kerbin→Duna (2nd window) | 14 256 000 s | 5 616 000 s |
+  | Kerbin→Jool (2nd geometry) | 30 000 000 s | 16 416 000 s |
+  | Kerbin→Eve (short TOF) | 20 000 000 s | 2 160 000 s |
+  | Duna→Kerbin | 10 000 000 s | 5 184 000 s |
 
 - Eve and Moho are the hardest cases: Eve exercises multi-revolution Lambert
   (a 1-rev solution is cheaper than the 0-rev); Moho exercises the ejection
   inclination plane-change Δv (Moho orbital inclination = 7°).
-- Tolerance: ±1% on ejection Δv, insertion Δv, and total Δv.
+- Tolerance: ±1% on ejection Δv, insertion Δv, and total Δv. ±0.5° on ejection angle and inclination (LWP oracle).
 - Kerbin→Duna typical total Δv: 1 000–3 500 m/s (sanity-check range used in `TransferComputerTests.cs`).
 
 > **Note on 1c reference tests**: Neither LWP nor TWP accepts parking-orbit inclination

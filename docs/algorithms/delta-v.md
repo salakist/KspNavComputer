@@ -121,4 +121,85 @@ $$
 ### Burn vector components
 
 All burns have `Radial = 0`. The prograde and normal components are as above. These values
-are consumed directly by Increment 2 (Precise Maneuver copy-paste export).
+are formatted by `PreciseManeuverFormatter` (Increment 2) into the Precise Maneuver
+copy-paste block.
+
+---
+
+## Ejection angle and inclination (`ComputeEjectionDetails`)
+
+**Source file:** `ManeuverCalculator.cs`  
+**Algorithm reference:** LWP `src/orbit.coffee` — `ejectionDetails`, `ejectionAngleFromPeriapsis`,
+`ejectionPeriapsisDirection`, `ejectionAngleToPrograde`
+
+Computed for ejection burns only; returns `null` for degenerate cases. Results are stored in
+`EjectionDetails` (record with `AngleDeg`, `InclinationDeg`).
+
+### 1 — Hyperbola geometry
+
+Speed at periapsis of the escape hyperbola (same as $v_{hyp,peri}$ above):
+
+$$
+v_1 = \sqrt{v_\infty^2 + \frac{2\mu}{r_{peri}} - \frac{2\mu}{r_{SOI}}}
+$$
+
+Hyperbola eccentricity and semi-latus rectum:
+
+$$
+e = \frac{r_{peri} v_1^2}{\mu} - 1, \qquad p = r_{peri}(1 + e)
+$$
+
+True anomaly at SOI exit:
+
+$$
+\theta = \arccos\!\left(\frac{p - r_{SOI}}{e \cdot r_{SOI}}\right)
+$$
+
+Zenith angle correction (LWP eq 4.23):
+
+$$
+\theta \mathrel{+}= \arcsin\!\left(\frac{v_1 \, r_{peri}}{v_\infty \, r_{SOI}}\right)
+$$
+
+### 2 — Periapsis direction
+
+The periapsis direction is the unit vector $\hat{p} = (p_x, p_y, 0)$ satisfying:
+
+$$
+\hat{p} \cdot \hat{e}_{jDir} = \cos\theta, \quad |\hat{p}| = 1, \quad p_z = 0
+$$
+
+where $\hat{e}_{jDir} = \mathbf{v_\infty}/v_\infty$. A valid (equatorial) solution exists
+only when $|\sin\theta| \geq |e_{jDir,z}|$.
+
+Substituting $g = -e_{jDir,x}/e_{jDir,y}$ gives a quadratic in $p_x$ (Numerical Recipes
+eq. 5.6.4 for numerical stability). Of the two solutions, the one giving a CCW orbit
+($(\hat{p} \times \hat{e}_{jDir})_z > 0$) is chosen.
+
+### 3 — Ejection inclination
+
+Orbital-plane normal $\hat{n} = \text{normalize}(\hat{p} \times \hat{e}_{jDir})$:
+
+$$
+i_{ej} = \arccos(n_z) \cdot \text{sign}(\pi - \theta) \cdot \text{sign}(e_{jDir,z})
+$$
+
+Positive = north-tilted, negative = south-tilted. Units: degrees in `EjectionDetails.InclinationDeg`.
+
+### 4 — Ejection angle to prograde
+
+Project body's heliocentric velocity onto the XY plane to get $\hat{p}_{prog}$:
+
+$$
+\phi = \arccos(\hat{p} \cdot \hat{p}_{prog})
+$$
+
+Adjust to $[0, 2\pi)$ based on $(\hat{p} \times \hat{p}_{prog})_z$, then map to signed convention:
+
+$$
+\phi_{deg} > 180° \Rightarrow \phi_{deg} = 180° - \phi_{deg} \quad (\text{retrograde side becomes negative})
+$$
+
+Positive = to prograde, negative = to retrograde. Matches the Precise Maneuver mod format string
+`{0:0.00° to prograde;0.00° to retrograde}`.
+

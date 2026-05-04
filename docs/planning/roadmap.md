@@ -12,7 +12,7 @@
 | 1a | Scaffold + one-way circular transfer | complete |
 | 1b | Round trip | complete |
 | 1c | Inclined / elliptical parking orbits + burn vectors | complete |
-| 2  | Precise Maneuver export | not started |
+| 2  | Precise Maneuver export | complete |
 | 3  | Transfer window porkchop plot | not started |
 | 4  | OPM + MPE body support | not started |
 | 5  | KSP save file import | not started |
@@ -39,7 +39,7 @@
 | **1a** | Full repo scaffold; Kepler + Lambert solvers; one-way transfer for circular equatorial orbits; minimal API + React UI |
 | **1b** | Return-leg computation; round-trip result record; UI shows both legs and total Δv |
 | **1c** | Inclined/elliptical parking orbits; ejection + insertion burn vectors (prograde/normal/radial); precise periapsis burn UT |
-| **2** | Format burns as Precise Maneuver plaintext block; one-click copy-to-clipboard per burn |
+| **2** | Precise Maneuver export: format burns as Precise Maneuver plaintext block (including ejection angle + inclination); one-click copy-to-clipboard per burn; ejection geometry computed from hyperbola equations (LWP algorithm) |
 | **3** | Porkchop plot: Δv / TOF grid over departure date range; click to populate burn details |
 | **4** | Parse Kopernicus `.cfg` files from local GameData to add OPM + MPE bodies |
 | **5** | Parse `.sfs` save files; vessel selection dropdown pre-fills departure parameters |

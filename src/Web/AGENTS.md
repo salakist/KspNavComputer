@@ -49,3 +49,6 @@ dotnet run       # starts on http://localhost:5000
 - Inclination inputs are in degrees in the UI; the API converts to radians internally.
 - Eccentricity inputs are dimensionless (0 = circular).
 - No global state management library — React `useState`/`useEffect` only for 1a.
+- `TransferResultPanel` shows ejection angle and inclination rows (from `ejectionDetails`)
+  when available; `formatEjectionAngle(angleDeg)` formats e.g. `"113.73° to retrograde"`.
+- Copy-to-clipboard buttons use `preciseManeuverText` from `BurnDto`.

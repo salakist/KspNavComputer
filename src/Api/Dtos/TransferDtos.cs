@@ -15,11 +15,15 @@ public record TransferRequest(
 
 public record BurnVectorDto(double Prograde, double Normal, double Radial);
 
+public record EjectionDetailsDto(double AngleDeg, double InclinationDeg);
+
 public record BurnDto(
     double DeltaV,
     double BurnUT,
     string BurnDate,
-    BurnVectorDto Vector
+    BurnVectorDto Vector,
+    string PreciseManeuverText,
+    EjectionDetailsDto? EjectionDetails
 );
 
 public record TransferResponse(

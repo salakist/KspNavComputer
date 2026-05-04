@@ -61,10 +61,27 @@ function oneWay(originName, destName, departureUT, tof, r0, r1) {
         v0, v1,
         null, null, null, null, null
     );
+
+    // Convert LWP ejection angle [0, 2π) rad → signed degrees matching C# convention:
+    //   (0°, 180°] → positive (prograde side)
+    //   (180°, 360°) → negative (retrograde side), via angleDeg = 180 − angleDeg
+    let ejectionAngleDeg = null;
+    let ejectionInclinationDeg = null;
+    if (t.ejectionAngle != null && !isNaN(t.ejectionAngle)) {
+        let angleDeg = t.ejectionAngle * 180 / Math.PI;
+        if (angleDeg > 180) angleDeg = 180 - angleDeg;
+        ejectionAngleDeg = angleDeg;
+    }
+    if (t.ejectionInclination != null && !isNaN(t.ejectionInclination)) {
+        ejectionInclinationDeg = t.ejectionInclination * 180 / Math.PI;
+    }
+
     return {
         ejectionDeltaV:  t.ejectionDeltaV,
         insertionDeltaV: t.insertionDeltaV,
         totalDeltaV:     t.deltaV,
+        ejectionAngleDeg,
+        ejectionInclinationDeg,
     };
 }
 
@@ -126,13 +143,17 @@ const results = cases.map(c => {
         returnTimeOfFlight:        c.returnTof,
         parkingOrbitAltitude:      c.r0,
         destinationOrbitAltitude:  c.r1,
-        outboundEjectionDeltaV:    outbound.ejectionDeltaV,
-        outboundInsertionDeltaV:   outbound.insertionDeltaV,
-        outboundTotalDeltaV:       outbound.totalDeltaV,
-        returnEjectionDeltaV:      ret.ejectionDeltaV,
-        returnInsertionDeltaV:     ret.insertionDeltaV,
-        returnTotalDeltaV:         ret.totalDeltaV,
-        totalDeltaV:               outbound.totalDeltaV + ret.totalDeltaV,
+        outboundEjectionDeltaV:        outbound.ejectionDeltaV,
+        outboundInsertionDeltaV:       outbound.insertionDeltaV,
+        outboundTotalDeltaV:           outbound.totalDeltaV,
+        outboundEjectionAngleDeg:      outbound.ejectionAngleDeg,
+        outboundEjectionInclinationDeg: outbound.ejectionInclinationDeg,
+        returnEjectionDeltaV:          ret.ejectionDeltaV,
+        returnInsertionDeltaV:         ret.insertionDeltaV,
+        returnTotalDeltaV:             ret.totalDeltaV,
+        returnEjectionAngleDeg:        ret.ejectionAngleDeg,
+        returnEjectionInclinationDeg:  ret.ejectionInclinationDeg,
+        totalDeltaV:                   outbound.totalDeltaV + ret.totalDeltaV,
     };
 });
 

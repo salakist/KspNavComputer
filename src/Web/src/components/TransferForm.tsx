@@ -193,7 +193,21 @@ export default function TransferForm() {
   );
 }
 
+function formatEjectionAngle(angleDeg: number): string {
+  if (angleDeg >= 0) return `${angleDeg.toFixed(2)}° to prograde`;
+  return `${(-angleDeg).toFixed(2)}° to retrograde`;
+}
+
 function TransferResultPanel({ title, result }: { title: string; result: TransferResponse }) {
+  const [ejCopied,  setEjCopied]  = useState(false);
+  const [insCopied, setInsCopied] = useState(false);
+
+  const handleCopy = async (text: string, setCopied: (v: boolean) => void) => {
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <div className="result-panel">
       <h2>{title}</h2>
@@ -207,12 +221,28 @@ function TransferResultPanel({ title, result }: { title: string; result: Transfe
           <tr><th>Normal Δv</th>   <td>{result.ejection.vector.normal.toFixed(1)} m/s</td></tr>
           <tr><th>Radial Δv</th>   <td>{result.ejection.vector.radial.toFixed(1)} m/s</td></tr>
           <tr><th>Total</th>       <td>{result.ejection.deltaV.toFixed(1)} m/s</td></tr>
+          {result.ejection.ejectionDetails && (
+            <>
+              <tr><th>Ejection angle</th><td>{formatEjectionAngle(result.ejection.ejectionDetails.angleDeg)}</td></tr>
+              <tr><th>Ejection inc.</th> <td>{result.ejection.ejectionDetails.inclinationDeg.toFixed(2)}°</td></tr>
+            </>
+          )}
+          <tr><td colSpan={2}>
+            <button onClick={() => handleCopy(result.ejection.preciseManeuverText, setEjCopied)}>
+              {ejCopied ? 'Copied!' : 'Copy PM'}
+            </button>
+          </td></tr>
           <tr className="section-header"><th colSpan={2}>Insertion burn</th></tr>
           <tr><th>Periapsis UT</th><td>{result.insertion.burnDate}</td></tr>
           <tr><th>Prograde Δv</th> <td>{result.insertion.vector.prograde.toFixed(1)} m/s</td></tr>
           <tr><th>Normal Δv</th>   <td>{result.insertion.vector.normal.toFixed(1)} m/s</td></tr>
           <tr><th>Radial Δv</th>   <td>{result.insertion.vector.radial.toFixed(1)} m/s</td></tr>
           <tr><th>Total</th>       <td>{result.insertion.deltaV.toFixed(1)} m/s</td></tr>
+          <tr><td colSpan={2}>
+            <button onClick={() => handleCopy(result.insertion.preciseManeuverText, setInsCopied)}>
+              {insCopied ? 'Copied!' : 'Copy PM'}
+            </button>
+          </td></tr>
           <tr className="total"><th>Mission Δv</th><td>{result.totalDeltaV.toFixed(1)} m/s</td></tr>
         </tbody>
       </table>

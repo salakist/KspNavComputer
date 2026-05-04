@@ -6,7 +6,8 @@ namespace KspNavComputer.Core.Transfer;
 /// orbital frame at the burn point.
 /// </summary>
 public record Burn(
-    double DeltaV,       // total Δv magnitude [m/s]
-    double BurnUT,       // precise periapsis burn time [s UT]
-    BurnVector Vector    // prograde/normal/radial components [m/s]
+    double DeltaV,           // total Δv magnitude [m/s]
+    double BurnUT,           // precise periapsis burn time [s UT]
+    BurnVector Vector,       // prograde/normal/radial components [m/s]
+    EjectionDetails? Ejection = null  // only set for ejection burns
 );

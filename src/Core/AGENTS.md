@@ -23,12 +23,15 @@ src/Core/
     ├── ParkingOrbit.cs          record: Altitude [m], Inclination [rad, default 0], Eccentricity [default 0]
     ├── TransferParameters.cs    record: Origin, Destination, DepartureUT, TOF, parking orbits
     ├── BurnVector.cs            record: Prograde, Normal, Radial [m/s]; Magnitude property; Zero sentinel
-    ├── Burn.cs                  record: DeltaV [m/s], BurnUT [s UT], Vector (BurnVector)
+    ├── EjectionDetails.cs       record: AngleDeg (signed°), InclinationDeg (°); see docs/algorithms/delta-v.md
+    ├── Burn.cs                  record: DeltaV [m/s], BurnUT [s UT], Vector (BurnVector), Ejection (EjectionDetails?)
     ├── TransferResult.cs        record: DepartureUT, ArrivalUT, Ejection (Burn), Insertion (Burn), TotalDeltaV
     ├── RoundTripParameters.cs   record: Origin, Destination, DepartureUT, OutboundTOF, StayDuration,
     │                                    ReturnTOF, OriginOrbit, DestinationOrbit
     ├── RoundTripResult.cs       record: Outbound (TransferResult), Return (TransferResult), TotalDeltaV
-    ├── ManeuverCalculator.cs    internal static: converts heliocentric transfer velocity → Burn
+    ├── ManeuverCalculator.cs    internal static: converts heliocentric transfer velocity → Burn;
+    │                                    includes ComputeEjectionDetails (LWP algorithm port)
+    ├── PreciseManeuverFormatter.cs  static Format(Burn) → PM plaintext block (for API + future mod DLL)
     └── TransferComputer.cs      orchestrates Kepler → Lambert → ManeuverCalculator; ComputeRoundTrip
 ```
 
