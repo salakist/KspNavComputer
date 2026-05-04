@@ -16,7 +16,9 @@
         "-RestartRunning",
         "-OpenBrowser"
       ],
-      "console": "integratedTerminal"
+      "console": "integratedTerminal",
+      "preLaunchTask": "stack:stop",
+      "postDebugTask": "stack:stop"
     },
     {
       "name": "API (debug)",

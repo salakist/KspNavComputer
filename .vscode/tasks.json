@@ -29,6 +29,7 @@
         "build",
         "${workspaceFolder}/src/Api/KspNavComputer.Api.csproj"
       ],
+      "dependsOn": ["stack:stop"],
       "group": "build",
       "presentation": {
         "reveal": "silent",
@@ -41,6 +42,7 @@
       "type": "npm",
       "script": "dev",
       "path": "src/Web",
+      "dependsOn": ["stack:stop"],
       "isBackground": true,
       "presentation": {
         "reveal": "silent",
