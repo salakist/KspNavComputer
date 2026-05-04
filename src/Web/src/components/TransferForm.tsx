@@ -18,7 +18,11 @@ export default function TransferForm() {
   const [depDay,        setDepDay]        = useState(1);
   const [tofDays,       setTofDays]       = useState(211);
   const [originAlt,     setOriginAlt]     = useState(100);   // km
+  const [originInc,     setOriginInc]     = useState(0);     // degrees
+  const [originEcc,     setOriginEcc]     = useState(0);
   const [destAlt,       setDestAlt]       = useState(60);    // km
+  const [destInc,       setDestInc]       = useState(0);     // degrees
+  const [destEcc,       setDestEcc]       = useState(0);
   const [roundTrip,     setRoundTrip]     = useState(false);
   const [stayDays,      setStayDays]      = useState(90);    // days at destination
   const [returnTofDays, setReturnTofDays] = useState(211);   // days return TOF
@@ -57,6 +61,10 @@ export default function TransferForm() {
           returnTimeOfFlight:   returnTofDays * KSP_DAY_S,
           originAltitude:       originAlt * 1_000,
           destinationAltitude:  destAlt   * 1_000,
+          originInclination:      originInc,
+          destinationInclination: destInc,
+          originEccentricity:     originEcc,
+          destinationEccentricity: destEcc,
         });
         setRtResult(res);
       } else {
@@ -67,6 +75,10 @@ export default function TransferForm() {
           timeOfFlight,
           originAltitude:      originAlt * 1_000,
           destinationAltitude: destAlt  * 1_000,
+          originInclination:      originInc,
+          destinationInclination: destInc,
+          originEccentricity:     originEcc,
+          destinationEccentricity: destEcc,
         });
         setResult(res);
       }
@@ -92,6 +104,16 @@ export default function TransferForm() {
             <input type="number" min={1} value={originAlt}
               onChange={e => setOriginAlt(Number(e.target.value))} />
           </label>
+          <label>
+            Inclination (°)
+            <input type="number" min={0} max={180} step={0.1} value={originInc}
+              onChange={e => setOriginInc(Number(e.target.value))} />
+          </label>
+          <label>
+            Eccentricity
+            <input type="number" min={0} max={0.99} step={0.01} value={originEcc}
+              onChange={e => setOriginEcc(Number(e.target.value))} />
+          </label>
         </div>
 
         <div className="form-row">
@@ -105,6 +127,16 @@ export default function TransferForm() {
             Capture orbit altitude (km)
             <input type="number" min={1} value={destAlt}
               onChange={e => setDestAlt(Number(e.target.value))} />
+          </label>
+          <label>
+            Inclination (°)
+            <input type="number" min={0} max={180} step={0.1} value={destInc}
+              onChange={e => setDestInc(Number(e.target.value))} />
+          </label>
+          <label>
+            Eccentricity
+            <input type="number" min={0} max={0.99} step={0.01} value={destEcc}
+              onChange={e => setDestEcc(Number(e.target.value))} />
           </label>
         </div>
 

@@ -25,8 +25,12 @@ public static class TransferEndpoints
             Destination:      destination,
             DepartureUT:      req.DepartureUT,
             TimeOfFlight:     req.TimeOfFlight,
-            OriginOrbit:      new ParkingOrbit(req.OriginAltitude),
-            DestinationOrbit: new ParkingOrbit(req.DestinationAltitude)
+            OriginOrbit:      new ParkingOrbit(req.OriginAltitude,
+                                  req.OriginInclination * Math.PI / 180.0,
+                                  req.OriginEccentricity),
+            DestinationOrbit: new ParkingOrbit(req.DestinationAltitude,
+                                  req.DestinationInclination * Math.PI / 180.0,
+                                  req.DestinationEccentricity)
         );
 
         TransferResult result;
@@ -54,8 +58,12 @@ public static class TransferEndpoints
             OutboundTimeOfFlight: req.OutboundTimeOfFlight,
             StayDuration:         req.StayDuration,
             ReturnTimeOfFlight:   req.ReturnTimeOfFlight,
-            OriginOrbit:          new ParkingOrbit(req.OriginAltitude),
-            DestinationOrbit:     new ParkingOrbit(req.DestinationAltitude)
+            OriginOrbit:          new ParkingOrbit(req.OriginAltitude,
+                                      req.OriginInclination * Math.PI / 180.0,
+                                      req.OriginEccentricity),
+            DestinationOrbit:     new ParkingOrbit(req.DestinationAltitude,
+                                      req.DestinationInclination * Math.PI / 180.0,
+                                      req.DestinationEccentricity)
         );
 
         RoundTripResult result;
