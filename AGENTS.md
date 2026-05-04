@@ -35,6 +35,7 @@ KspNavComputer/
 │   └── Web/           KspNavComputer.Web           — Vite + React + TypeScript
 ├── tests/
 │   └── Core/          KspNavComputer.Core.Tests    — xUnit unit tests
+├── bruno/                                          — Bruno API collection (reference cases + inclination demo)
 ├── scripts/
 │   ├── get-agent-token.ps1                         — salakist-agent GitHub App token
 │   ├── hooks/

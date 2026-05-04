@@ -41,8 +41,18 @@ Response (JSON):
   "departureDate": "Y1 D211 20:34:30",
   "arrivalUT": 9094470,
   "arrivalDate": "Y1 D422 18:34:30",
-  "ejectionDeltaV": 950.1,
-  "insertionDeltaV": 620.4,
+  "ejection": {
+    "deltaV": 950.1,
+    "burnUT": 4534210,
+    "burnDate": "Y1 D211 19:50:10",
+    "vector": { "prograde": 948.3, "normal": -58.1, "radial": 0.0 }
+  },
+  "insertion": {
+    "deltaV": 620.4,
+    "burnUT": 9098120,
+    "burnDate": "Y1 D422 19:35:20",
+    "vector": { "prograde": -620.4, "normal": 0.0, "radial": 0.0 }
+  },
   "totalDeltaV": 1570.5
 }
 ```
@@ -87,12 +97,14 @@ excluding Kerbol itself.
 ```
 src/Api/
 ├── Dtos/
-│   ├── TransferDtos.cs      — TransferRequest, TransferResponse records
+│   ├── TransferDtos.cs      — TransferRequest, BurnVectorDto, BurnDto, TransferResponse records
 │   ├── RoundTripDtos.cs     — RoundTripRequest, RoundTripResponse records
 │   └── BodyDtos.cs          — BodySummary record
 ├── Endpoints/
 │   ├── TransferEndpoints.cs — Map() registers /api/transfer and /api/transfer/roundtrip
 │   └── BodiesEndpoints.cs   — Map() registers /api/bodies
+├── Mappers/
+│   └── TransferMapper.cs    — ToResponse(TransferResult), ToBurnDto(Burn)
 └── Program.cs               — bootstrap only: CORS + Map() calls + app.Run()
 ```
 
