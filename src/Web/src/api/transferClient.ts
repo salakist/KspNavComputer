@@ -19,20 +19,21 @@ export interface BurnVectorDto {
   radial: number;
 }
 
+export interface BurnDto {
+  deltaV: number;
+  burnUT: number;
+  burnDate: string;
+  vector: BurnVectorDto;
+}
+
 export interface TransferResponse {
   departureUT: number;
   departureDate: string;
   arrivalUT: number;
   arrivalDate: string;
-  ejectionDeltaV: number;
-  insertionDeltaV: number;
+  ejection: BurnDto;
+  insertion: BurnDto;
   totalDeltaV: number;
-  ejectionBurnUT: number;
-  ejectionBurnDate: string;
-  ejectionBurnVector: BurnVectorDto;
-  insertionBurnUT: number;
-  insertionBurnDate: string;
-  insertionBurnVector: BurnVectorDto;
 }
 
 export interface BodySummary {

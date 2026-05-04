@@ -202,17 +202,17 @@ function TransferResultPanel({ title, result }: { title: string; result: Transfe
           <tr><th>Departure</th><td>{result.departureDate}</td></tr>
           <tr><th>Arrival</th>  <td>{result.arrivalDate}</td></tr>
           <tr className="section-header"><th colSpan={2}>Ejection burn</th></tr>
-          <tr><th>Periapsis UT</th><td>{result.ejectionBurnDate}</td></tr>
-          <tr><th>Prograde Δv</th> <td>{result.ejectionBurnVector.prograde.toFixed(1)} m/s</td></tr>
-          <tr><th>Normal Δv</th>   <td>{result.ejectionBurnVector.normal.toFixed(1)} m/s</td></tr>
-          <tr><th>Radial Δv</th>   <td>{result.ejectionBurnVector.radial.toFixed(1)} m/s</td></tr>
-          <tr><th>Total</th>       <td>{result.ejectionDeltaV.toFixed(1)} m/s</td></tr>
+          <tr><th>Periapsis UT</th><td>{result.ejection.burnDate}</td></tr>
+          <tr><th>Prograde Δv</th> <td>{result.ejection.vector.prograde.toFixed(1)} m/s</td></tr>
+          <tr><th>Normal Δv</th>   <td>{result.ejection.vector.normal.toFixed(1)} m/s</td></tr>
+          <tr><th>Radial Δv</th>   <td>{result.ejection.vector.radial.toFixed(1)} m/s</td></tr>
+          <tr><th>Total</th>       <td>{result.ejection.deltaV.toFixed(1)} m/s</td></tr>
           <tr className="section-header"><th colSpan={2}>Insertion burn</th></tr>
-          <tr><th>Periapsis UT</th><td>{result.insertionBurnDate}</td></tr>
-          <tr><th>Prograde Δv</th> <td>{result.insertionBurnVector.prograde.toFixed(1)} m/s</td></tr>
-          <tr><th>Normal Δv</th>   <td>{result.insertionBurnVector.normal.toFixed(1)} m/s</td></tr>
-          <tr><th>Radial Δv</th>   <td>{result.insertionBurnVector.radial.toFixed(1)} m/s</td></tr>
-          <tr><th>Total</th>       <td>{result.insertionDeltaV.toFixed(1)} m/s</td></tr>
+          <tr><th>Periapsis UT</th><td>{result.insertion.burnDate}</td></tr>
+          <tr><th>Prograde Δv</th> <td>{result.insertion.vector.prograde.toFixed(1)} m/s</td></tr>
+          <tr><th>Normal Δv</th>   <td>{result.insertion.vector.normal.toFixed(1)} m/s</td></tr>
+          <tr><th>Radial Δv</th>   <td>{result.insertion.vector.radial.toFixed(1)} m/s</td></tr>
+          <tr><th>Total</th>       <td>{result.insertion.deltaV.toFixed(1)} m/s</td></tr>
           <tr className="total"><th>Mission Δv</th><td>{result.totalDeltaV.toFixed(1)} m/s</td></tr>
         </tbody>
       </table>

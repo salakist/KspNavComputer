@@ -15,18 +15,19 @@ public record TransferRequest(
 
 public record BurnVectorDto(double Prograde, double Normal, double Radial);
 
+public record BurnDto(
+    double DeltaV,
+    double BurnUT,
+    string BurnDate,
+    BurnVectorDto Vector
+);
+
 public record TransferResponse(
     double DepartureUT,
     string DepartureDate,
     double ArrivalUT,
     string ArrivalDate,
-    double EjectionDeltaV,
-    double InsertionDeltaV,
-    double TotalDeltaV,
-    double EjectionBurnUT,
-    string EjectionBurnDate,
-    BurnVectorDto EjectionBurnVector,
-    double InsertionBurnUT,
-    string InsertionBurnDate,
-    BurnVectorDto InsertionBurnVector
+    BurnDto Ejection,
+    BurnDto Insertion,
+    double TotalDeltaV
 );

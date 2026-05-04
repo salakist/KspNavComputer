@@ -32,19 +32,20 @@ internal static class TransferMapper
         );
 
     internal static TransferResponse ToResponse(TransferResult r) => new(
-        DepartureUT:         r.DepartureUT,
-        DepartureDate:       KspTime.Format(r.DepartureUT),
-        ArrivalUT:           r.ArrivalUT,
-        ArrivalDate:         KspTime.Format(r.ArrivalUT),
-        EjectionDeltaV:      r.EjectionDeltaV,
-        InsertionDeltaV:     r.InsertionDeltaV,
-        TotalDeltaV:         r.TotalDeltaV,
-        EjectionBurnUT:      r.EjectionBurnUT,
-        EjectionBurnDate:    KspTime.Format(r.EjectionBurnUT),
-        EjectionBurnVector:  new BurnVectorDto(r.EjectionBurnVector.Prograde,  r.EjectionBurnVector.Normal,  r.EjectionBurnVector.Radial),
-        InsertionBurnUT:     r.InsertionBurnUT,
-        InsertionBurnDate:   KspTime.Format(r.InsertionBurnUT),
-        InsertionBurnVector: new BurnVectorDto(r.InsertionBurnVector.Prograde, r.InsertionBurnVector.Normal, r.InsertionBurnVector.Radial)
+        DepartureUT:  r.DepartureUT,
+        DepartureDate: KspTime.Format(r.DepartureUT),
+        ArrivalUT:    r.ArrivalUT,
+        ArrivalDate:  KspTime.Format(r.ArrivalUT),
+        Ejection:     ToBurnDto(r.Ejection),
+        Insertion:    ToBurnDto(r.Insertion),
+        TotalDeltaV:  r.TotalDeltaV
+    );
+
+    private static BurnDto ToBurnDto(Burn b) => new(
+        DeltaV:   b.DeltaV,
+        BurnUT:   b.BurnUT,
+        BurnDate: KspTime.Format(b.BurnUT),
+        Vector:   new BurnVectorDto(b.Vector.Prograde, b.Vector.Normal, b.Vector.Radial)
     );
 
     // Inclination is stored in degrees in DTOs; Core uses radians.

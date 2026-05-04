@@ -91,13 +91,13 @@ public sealed class ReferenceRoundTripTests
         const double tol = 0.01; // 1 %
 
         // Outbound leg
-        AssertWithinPct(expOutEject,  result.Outbound.EjectionDeltaV,  tol, $"{description} outbound ejection");
-        AssertWithinPct(expOutInsert, result.Outbound.InsertionDeltaV, tol, $"{description} outbound insertion");
+        AssertWithinPct(expOutEject,  result.Outbound.Ejection.DeltaV,  tol, $"{description} outbound ejection");
+        AssertWithinPct(expOutInsert, result.Outbound.Insertion.DeltaV, tol, $"{description} outbound insertion");
         AssertWithinPct(expOutTotal,  result.Outbound.TotalDeltaV,     tol, $"{description} outbound total");
 
         // Return leg
-        AssertWithinPct(expRetEject,  result.Return.EjectionDeltaV,    tol, $"{description} return ejection");
-        AssertWithinPct(expRetInsert, result.Return.InsertionDeltaV,   tol, $"{description} return insertion");
+        AssertWithinPct(expRetEject,  result.Return.Ejection.DeltaV,    tol, $"{description} return ejection");
+        AssertWithinPct(expRetInsert, result.Return.Insertion.DeltaV,   tol, $"{description} return insertion");
         AssertWithinPct(expRetTotal,  result.Return.TotalDeltaV,       tol, $"{description} return total");
 
         // Mission total
