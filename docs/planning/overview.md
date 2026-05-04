@@ -56,7 +56,7 @@ into Precise Maneuver. The app fills a real gap.
   only for display and input.
 - Lambert solver: planned as 0-revolution elliptical solutions only.
   *Actual: multi-revolution Sun/Gooding (1979) implemented from the start — see
-  [increment-1a.md](increment-1a.md) actuals.*
+  [increment-1a.md](increments/increment-1a.md) actuals.*
 
 ---
 

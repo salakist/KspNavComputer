@@ -12,7 +12,7 @@ It is tracked in git (unlike `local-docs/`, which is gitignored).
 | [`initial-brief.md`](initial-brief.md) | The original brief as written before any planning — verbatim |
 | [`planning/overview.md`](planning/overview.md) | Problem statement, architecture decisions, design principles, licensing |
 | [`planning/roadmap.md`](planning/roadmap.md) | Increment status table and one-line description of each increment |
-| `planning/increment-N.md` | Plan + actuals for each increment (see below) |
+| `planning/increments/increment-N.md` | Plan + actuals for each increment (see below) |
 
 ---
 
