@@ -19,48 +19,52 @@ src/Core/
 │   └── LambertSolver.cs      Sun/Gooding (1979) multi-revolution Lambert solver (Brent root-finding)
 ├── Time/
 │   └── KspTime.cs            UT↔KSP calendar (426-day year, 6-hour day); Format helper
-└── Transfer/
-    ├── ParkingOrbit.cs           record: Altitude [m], Inclination [rad, default 0], Eccentricity [default 0]
-    ├── TransferType.cs           enum: Ballistic | MidCoursePlaneChange | Optimal
-    ├── TransferParameters.cs     record: Origin, Destination, DepartureUT, TOF, parking orbits,
-    │                                     TransferType (default Optimal), NoInsertionBurn (default false)
-    ├── BurnVector.cs             record: Prograde, Normal, Radial [m/s]; Magnitude property; Zero sentinel
-    ├── EjectionDetails.cs        record: AngleDeg (signed°), InclinationDeg (°); see docs/algorithms/delta-v.md
-    ├── Burn.cs                   record: DeltaV [m/s], BurnUT [s UT], Vector (BurnVector), Ejection (EjectionDetails?)
-    ├── PlaneChangeResult.cs      internal record: DepartureVelocity, ArrivalVelocity, PlaneChange (Burn)
-    ├── TransferResult.cs         record: DepartureUT, ArrivalUT, Ejection, Insertion, TotalDeltaV,
-    │                                     PlaneChange (Burn?), PhaseAngleDeg, TransferAngleDeg,
-    │                                     TransferPeriapsis, TransferApoapsis, InsertionInclinationDeg
-    ├── RoundTripParameters.cs    record: Origin, Destination, DepartureUT, OutboundTOF, StayDuration,
-    │                                     ReturnTOF, OriginOrbit, DestinationOrbit
-    ├── RoundTripResult.cs        record: Outbound (TransferResult), Return (TransferResult), TotalDeltaV
+├── Maneuver/
+│   ├── BurnVector.cs             record: Prograde, Normal, Radial [m/s]; Magnitude property; Zero sentinel
+│   ├── EjectionDetails.cs        record: AngleDeg (signed°), InclinationDeg (°); see docs/algorithms/delta-v.md
+│   ├── Burn.cs                   record: DeltaV [m/s], BurnUT [s UT], Vector (BurnVector), Ejection (EjectionDetails?)
+│   ├── ParkingOrbit.cs           record: Altitude [m], Inclination [rad, default 0], Eccentricity [default 0]
+│   ├── ManeuverParameters.cs     internal record: input for ManeuverComputer
+│   ├── ManeuverComputer.cs       internal static: converts heliocentric transfer velocity → Burn;
+│   │                                     includes ComputeEjectionDetails (LWP algorithm port)
+│   └── PreciseManeuverFormatter.cs   static Format(Burn) → PM plaintext block (for API + future mod DLL)
+├── Transfer/
+│   ├── TransferType.cs           enum: Ballistic | MidCoursePlaneChange | Optimal
+│   ├── TransferParameters.cs     record: Origin, Destination, DepartureUT, TOF, parking orbits,
+│   │                                     TransferType (default Optimal), NoInsertionBurn (default false)
+│   ├── TransferResult.cs         record: DepartureUT, ArrivalUT, Ejection, Insertion, TotalDeltaV,
+│   │                                     PlaneChange (Burn?), PhaseAngleDeg, TransferAngleDeg,
+│   │                                     TransferPeriapsis, TransferApoapsis, InsertionInclinationDeg
+│   ├── RoundTripParameters.cs    record: Origin, Destination, DepartureUT, OutboundTOF, StayDuration,
+│   │                                     ReturnTOF, OriginOrbit, DestinationOrbit
+│   ├── RoundTripResult.cs        record: Outbound (TransferResult), Return (TransferResult), TotalDeltaV
+│   ├── PlaneChangeParameters.cs  internal record: input for PlaneChangeComputer
+│   ├── PlaneChangeResult.cs      internal record: DepartureVelocity, ArrivalVelocity, PlaneChange (Burn)
+│   ├── PlaneChangeComputer.cs    static: golden-section search for optimal plane-change angle;
+│   │                                     Rodrigues rotation; returns null when coplanar/degenerate
+│   └── TransferComputer.cs       orchestrates Kepler → Lambert → ManeuverComputer → optional
+│                                         PlaneChangeComputer; ComputeRoundTrip
+└── Porkchop/
     ├── PorkchopParameters.cs     record: Origin, Destination, parking orbits, EarliestDeparture,
     │                                     LatestDeparture, TransferType, GridCols (default 100), GridRows (default 100)
     ├── PorkchopResult.cs         record: flat row-major DeltaVs[], Rows, Cols, departure/TOF bounds,
     │                                     MinDeltaV, MaxDeltaV, MeanLogDeltaV, StdLogDeltaV, OptimalRow, OptimalCol
-    ├── ManeuverCalculator.cs     internal static: converts heliocentric transfer velocity → Burn;
-    │                                     includes ComputeEjectionDetails (LWP algorithm port)
-    ├── PlaneChangeComputer.cs    static: golden-section search for optimal plane-change angle;
-    │                                     Rodrigues rotation; returns null when coplanar/degenerate
-    ├── PorkchopComputer.cs       static: computes rows×cols Δv grid; AutoTofRange (Hohmann formula);
-    │                                     calls TransferComputer per cell; NaN on failure
-    ├── PreciseManeuverFormatter.cs   static Format(Burn) → PM plaintext block (for API + future mod DLL)
-    └── TransferComputer.cs       orchestrates Kepler → Lambert → ManeuverCalculator → optional
-                                        PlaneChangeComputer; ComputeRoundTrip
+    └── PorkchopComputer.cs       static: computes rows×cols Δv grid; AutoTofRange (Hohmann formula);
+                                          calls TransferComputer per cell; NaN on failure
 ```
 
 ## Algorithm references
 
 Full algorithm documentation lives in `docs/algorithms/`:
 - [`docs/algorithms/lambert.md`](../../docs/algorithms/lambert.md) — Lambert solver (Sun/Gooding 1979, arc selection, multi-revolution, velocity reconstruction)
-- [`docs/algorithms/delta-v.md`](../../docs/algorithms/delta-v.md) — Δv pipeline (Kepler propagation, ManeuverCalculator formulas, precise burn UT)
+- [`docs/algorithms/delta-v.md`](../../docs/algorithms/delta-v.md) — Δv pipeline (Kepler propagation, ManeuverComputer formulas, precise burn UT)
 - [`docs/algorithms/porkchop.md`](../../docs/algorithms/porkchop.md) — transfer types and porkchop grid algorithm
 
 Key implementation notes for agents touching these files:
 - Kepler solver tolerance: `1e-10`.
 - Lambert `TransferComputer` enumerates both prograde and retrograde, picks minimum total Δv.
 - **Known limitation**: 180° (anti-podal) geometry is degenerate — do not pass exactly-opposite position vectors.
-- Update `docs/algorithms/` when changing any of these files: `LambertSolver.cs`, `KeplerSolver.cs`, `ManeuverCalculator.cs`, `TransferComputer.cs`.
+- Update `docs/algorithms/` when changing any of these files: `LambertSolver.cs`, `KeplerSolver.cs`, `ManeuverComputer.cs`, `TransferComputer.cs`.
 
 ## Body data
 
@@ -92,3 +96,4 @@ Convert only at input/output boundaries (e.g. km → m for altitude inputs).
 - Transfer types: `Ballistic` skips plane-change; `MidCoursePlaneChange` always applies it; `Optimal` picks whichever has lower total Δv.
 - Phase angle uses r2 at **departureUT** (not arrivalUT). TransferPeriapsis/Apoapsis are altitudes above Kerbol's surface (subtract Kerbol.Radius from semi-latus rectum extrema).
 - Porkchop grid spacing: endpoint-inclusive (`col / (cols − 1)`). Grid default is 100×100; `AutoTofRange` is always applied (PorkchopParameters does not carry MinTof/MaxTof).
+- `PlaneChangeComputer` intentionally remains under `Transfer/` for now; revisit placement after Increment 3a.

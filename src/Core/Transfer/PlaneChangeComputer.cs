@@ -1,4 +1,5 @@
 using KspNavComputer.Core.Mechanics;
+using KspNavComputer.Core.Maneuver;
 
 namespace KspNavComputer.Core.Transfer;
 
@@ -48,11 +49,15 @@ internal static class PlaneChangeComputer
     ///   - relative inclination is effectively zero (coplanar bodies), or
     ///   - Lambert solver fails for the rotated geometry.
     /// </summary>
-    public static PlaneChangeResult? Compute(
-        Vector3d r1, Vector3d v1Body,
-        Vector3d r2,
-        double tof, double t0, double mu)
+    public static PlaneChangeResult? Compute(PlaneChangeParameters p)
     {
+        Vector3d r1  = p.R1;
+        Vector3d v1Body = p.V1Body;
+        Vector3d r2  = p.R2;
+        double tof   = p.TimeOfFlight;
+        double t0    = p.DepartureUT;
+        double mu    = p.Mu;
+
         var n0 = Vector3d.Cross(r1, v1Body).Normalize();
 
         double relativeInclination = Math.Asin(

@@ -62,7 +62,7 @@ Plan sections are written once and never edited. Actuals sections are written on
 | Changed file(s) | Doc to update |
 |-----------------|---------------|
 | `LambertSolver.cs`, `KeplerSolver.cs` | [`algorithms/lambert.md`](algorithms/lambert.md) |
-| `ManeuverCalculator.cs`, `TransferComputer.cs` | [`algorithms/delta-v.md`](algorithms/delta-v.md) |
+| `ManeuverComputer.cs`, `TransferComputer.cs` | [`algorithms/delta-v.md`](algorithms/delta-v.md) |
 | `PlaneChangeComputer.cs`, `PorkchopComputer.cs`, `TransferType.cs` | [`algorithms/porkchop.md`](algorithms/porkchop.md) |
 | `CelestialBody.cs`, `OrbitalElements.cs`, `BodyDatabase.cs` | [`body-data-schema.md`](body-data-schema.md) |
 | Commit/PR workflow changes | [`commit-policy.md`](commit-policy.md) |

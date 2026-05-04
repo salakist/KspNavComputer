@@ -1,5 +1,7 @@
 using KspNavComputer.Api.Dtos;
 using KspNavComputer.Core.Bodies;
+using KspNavComputer.Core.Maneuver;
+using KspNavComputer.Core.Porkchop;
 using KspNavComputer.Core.Time;
 using KspNavComputer.Core.Transfer;
 

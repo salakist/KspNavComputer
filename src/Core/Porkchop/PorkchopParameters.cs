@@ -1,6 +1,8 @@
 using KspNavComputer.Core.Bodies;
+using KspNavComputer.Core.Maneuver;
+using KspNavComputer.Core.Transfer;
 
-namespace KspNavComputer.Core.Transfer;
+namespace KspNavComputer.Core.Porkchop;
 
 /// <summary>
 /// Input parameters for a porkchop (Δv / departure-date × TOF) grid computation.

@@ -1,4 +1,4 @@
-namespace KspNavComputer.Core.Transfer;
+namespace KspNavComputer.Core.Maneuver;
 
 /// <summary>
 /// Ejection geometry for a departure burn: the angle from the origin body's

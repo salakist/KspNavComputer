@@ -1,7 +1,7 @@
 using KspNavComputer.Core.Bodies;
 using KspNavComputer.Core.Mechanics;
 
-namespace KspNavComputer.Core.Transfer;
+namespace KspNavComputer.Core.Maneuver;
 
 /// <summary>
 /// Converts a heliocentric transfer velocity vector into a <see cref="Burn"/>:
@@ -26,12 +26,17 @@ namespace KspNavComputer.Core.Transfer;
 ///   Ejection:  burnUT = refUT − t  (burn before SOI exit)
 ///   Insertion: burnUT = refUT + t  (burn after SOI entry)
 /// </summary>
-internal static class ManeuverCalculator
+internal static class ManeuverComputer
 {
-    internal static Burn Compute(
-        ParkingOrbit parkingOrbit, CelestialBody body,
-        Vector3d vTransfer, Vector3d vBody, bool isEjection, double refUT)
+    internal static Burn Compute(ManeuverParameters p)
     {
+        ParkingOrbit parkingOrbit = p.ParkingOrbit;
+        CelestialBody body        = p.Body;
+        Vector3d vTransfer        = p.TransferVelocity;
+        Vector3d vBody            = p.BodyVelocity;
+        bool isEjection           = p.IsEjection;
+        double refUT              = p.RefUT;
+
         double muBody = body.GravParam;
         double rPeri  = body.Radius + parkingOrbit.Altitude;
         double rSoi   = body.SphereOfInfluence;

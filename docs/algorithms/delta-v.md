@@ -1,6 +1,6 @@
 # Transfer Δv Pipeline
 
-**Sources:** `src/Core/Transfer/TransferComputer.cs`, `src/Core/Transfer/ManeuverCalculator.cs`,
+**Sources:** `src/Core/Transfer/TransferComputer.cs`, `src/Core/Maneuver/ManeuverComputer.cs`,
 `src/Core/Mechanics/KeplerSolver.cs`
 
 ---
@@ -39,7 +39,7 @@ minimum total Δv.
 
 ## Step 3 — Maneuver calculation
 
-`ManeuverCalculator.Compute` takes the heliocentric transfer velocity **v_transfer** and the
+`ManeuverComputer.Compute` takes the heliocentric transfer velocity **v_transfer** and the
 body's heliocentric velocity **v_body** and produces a `Burn` (Δv scalar, burn UT, burn
 vector).
 
@@ -128,7 +128,7 @@ copy-paste block.
 
 ## Ejection angle and inclination (`ComputeEjectionDetails`)
 
-**Source file:** `ManeuverCalculator.cs`  
+**Source file:** `ManeuverComputer.cs`  
 **Algorithm reference:** LWP `src/orbit.coffee` — `ejectionDetails`, `ejectionAngleFromPeriapsis`,
 `ejectionPeriapsisDirection`, `ejectionAngleToPrograde`
 

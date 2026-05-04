@@ -1,4 +1,4 @@
-namespace KspNavComputer.Core.Transfer;
+namespace KspNavComputer.Core.Maneuver;
 
 /// <summary>
 /// A single manoeuvre: its Δv magnitude, the precise periapsis burn UT,

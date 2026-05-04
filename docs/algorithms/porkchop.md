@@ -1,6 +1,6 @@
 # Porkchop Plot — Transfer Types and Grid
 
-**Sources:** `src/Core/Transfer/PorkchopComputer.cs`, `src/Core/Transfer/PlaneChangeComputer.cs`,
+**Sources:** `src/Core/Porkchop/PorkchopComputer.cs`, `src/Core/Transfer/PlaneChangeComputer.cs`,
 `src/Core/Transfer/TransferComputer.cs`
 
 ---
@@ -61,7 +61,7 @@ Runs both ballistic and mid-course plane change. Returns whichever has lower tot
 
 ## Porkchop grid (`PorkchopComputer`)
 
-**Source:** `src/Core/Transfer/PorkchopComputer.cs`
+**Source:** `src/Core/Porkchop/PorkchopComputer.cs`
 
 Computes a `rows × cols` grid of total Δv values over a departure-date × TOF window.
 

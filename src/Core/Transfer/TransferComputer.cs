@@ -1,4 +1,5 @@
 using KspNavComputer.Core.Bodies;
+using KspNavComputer.Core.Maneuver;
 using KspNavComputer.Core.Mechanics;
 using System.Collections.Generic;
 
@@ -67,8 +68,8 @@ public static class TransferComputer
 
         foreach (var (vT1, vT2) in ballisticSolutions)
         {
-            var ej  = ManeuverCalculator.Compute(
-                p.OriginOrbit,      p.Origin,      vT1, v1Body, isEjection: true,  refUT: departureUT);
+            var ej  = ManeuverComputer.Compute(new ManeuverParameters(
+                p.OriginOrbit, p.Origin, vT1, v1Body, true, departureUT));
             var ins = ComputeInsertion(p, vT2, v2Body, arrivalUT);
 
             if (ej.DeltaV + ins.DeltaV < bestEject.DeltaV + bestInsert.DeltaV)
@@ -88,13 +89,13 @@ public static class TransferComputer
         if (p.TransferType == TransferType.MidCoursePlaneChange
             || p.TransferType == TransferType.Optimal)
         {
-            var pcResult = PlaneChangeComputer.Compute(
-                r1, v1Body, r2, p.TimeOfFlight, departureUT, mu);
+            var pcResult = PlaneChangeComputer.Compute(new PlaneChangeParameters(
+                r1, v1Body, r2, p.TimeOfFlight, departureUT, mu));
 
             if (pcResult != null)
             {
-                var pcEj  = ManeuverCalculator.Compute(
-                    p.OriginOrbit, p.Origin, pcResult.DepartureVelocity, v1Body, isEjection: true, refUT: departureUT);
+                var pcEj  = ManeuverComputer.Compute(new ManeuverParameters(
+                    p.OriginOrbit, p.Origin, pcResult.DepartureVelocity, v1Body, true, departureUT));
                 var pcIns = ComputeInsertion(p, pcResult.ArrivalVelocity, v2Body, arrivalUT);
                 double pcTotal = pcEj.DeltaV + pcResult.PlaneChange.DeltaV + pcIns.DeltaV;
 
@@ -187,9 +188,8 @@ public static class TransferComputer
         if (p.NoInsertionBurn)
             return new Burn(0.0, arrivalUT, BurnVector.Zero);
 
-        return ManeuverCalculator.Compute(
-            p.DestinationOrbit, p.Destination, vT2, v2Body,
-            isEjection: false, refUT: arrivalUT);
+        return ManeuverComputer.Compute(new ManeuverParameters(
+            p.DestinationOrbit, p.Destination, vT2, v2Body, false, arrivalUT));
     }
 
     /// <summary>

@@ -1,4 +1,4 @@
-namespace KspNavComputer.Core.Transfer;
+namespace KspNavComputer.Core.Maneuver;
 
 /// <summary>
 /// Δv components of a maneuver in the local orbital frame at the burn point.
