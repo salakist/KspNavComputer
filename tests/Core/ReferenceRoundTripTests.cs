@@ -33,7 +33,11 @@ public sealed class ReferenceRoundTripTests
         double ReturnEjectionDeltaV,
         double ReturnInsertionDeltaV,
         double ReturnTotalDeltaV,
-        double TotalDeltaV
+        double TotalDeltaV,
+        double? OutboundEjectionAngleDeg,
+        double? OutboundEjectionInclinationDeg,
+        double? ReturnEjectionAngleDeg,
+        double? ReturnEjectionInclinationDeg
     );
 
     private static IReadOnlyList<ReferenceCase> LoadCases()
@@ -58,7 +62,9 @@ public sealed class ReferenceRoundTripTests
                 c.ParkingOrbitAltitude, c.DestinationOrbitAltitude,
                 c.OutboundEjectionDeltaV, c.OutboundInsertionDeltaV, c.OutboundTotalDeltaV,
                 c.ReturnEjectionDeltaV,   c.ReturnInsertionDeltaV,   c.ReturnTotalDeltaV,
-                c.TotalDeltaV
+                c.TotalDeltaV,
+                c.OutboundEjectionAngleDeg, c.OutboundEjectionInclinationDeg,
+                c.ReturnEjectionAngleDeg,   c.ReturnEjectionInclinationDeg
             ];
     }
 
@@ -71,7 +77,9 @@ public sealed class ReferenceRoundTripTests
         double parkAlt, double destAlt,
         double expOutEject, double expOutInsert, double expOutTotal,
         double expRetEject, double expRetInsert, double expRetTotal,
-        double expTotal)
+        double expTotal,
+        double? expOutEjectAngle, double? expOutEjectInc,
+        double? expRetEjectAngle, double? expRetEjectInc)
     {
         _ = description;
 
@@ -102,6 +110,20 @@ public sealed class ReferenceRoundTripTests
 
         // Mission total
         AssertWithinPct(expTotal, result.TotalDeltaV, tol, $"{description} mission total");
+
+        // Ejection angle and inclination — ±0.5° tolerance
+        if (expOutEjectAngle.HasValue)
+        {
+            Assert.NotNull(result.Outbound.Ejection.Ejection);
+            AssertWithinDeg(expOutEjectAngle.Value, result.Outbound.Ejection.Ejection!.AngleDeg,       0.5, $"{description} outbound ejection angle");
+            AssertWithinDeg(expOutEjectInc!.Value,  result.Outbound.Ejection.Ejection!.InclinationDeg, 0.5, $"{description} outbound ejection inc");
+        }
+        if (expRetEjectAngle.HasValue)
+        {
+            Assert.NotNull(result.Return.Ejection.Ejection);
+            AssertWithinDeg(expRetEjectAngle.Value, result.Return.Ejection.Ejection!.AngleDeg,       0.5, $"{description} return ejection angle");
+            AssertWithinDeg(expRetEjectInc!.Value,  result.Return.Ejection.Ejection!.InclinationDeg, 0.5, $"{description} return ejection inc");
+        }
     }
 
     private static void AssertWithinPct(double expected, double actual, double pct, string label)
@@ -111,5 +133,13 @@ public sealed class ReferenceRoundTripTests
             relErr <= pct,
             $"{label}: expected {expected:F2} m/s, got {actual:F2} m/s " +
             $"(relative error {relErr * 100:F3} % > tolerance {pct * 100:F1} %)");
+    }
+
+    private static void AssertWithinDeg(double expected, double actual, double toleranceDeg, string label)
+    {
+        double err = Math.Abs(actual - expected);
+        Assert.True(
+            err <= toleranceDeg,
+            $"{label}: expected {expected:F4}°, got {actual:F4}° (error {err:F4}° > tolerance {toleranceDeg}°)");
     }
 }

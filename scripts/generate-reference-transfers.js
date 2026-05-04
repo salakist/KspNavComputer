@@ -67,13 +67,17 @@ const cases = [
 
     // ---- Additional cases added for 1c baseline ----
     // Kerbin → Duna second window (Y2-ish) — validates same geometry at a later epoch
-    { origin: 'Kerbin', destination: 'Duna',  departureUT: 14_256_000, tof:  5_616_000, r0: 100_000, r1:  60_000 },
+    { origin: 'Kerbin', destination: 'Duna',  departureUT: 14_256_000, tof:  5_616_000, r0: 100_000, r1:  60_000,
+      description: 'Kerbin→Duna second window, 60 km capture orbit — validates different epoch and non-100km altitude' },
     // Kerbin → Jool second geometry (shorter TOF, more expensive) — different Lambert arc
-    { origin: 'Kerbin', destination: 'Jool',  departureUT: 30_000_000, tof: 16_416_000, r0: 100_000, r1: 200_000 },
+    { origin: 'Kerbin', destination: 'Jool',  departureUT: 30_000_000, tof: 16_416_000, r0: 100_000, r1: 200_000,
+      description: 'Kerbin→Jool second geometry, 200 km Jool orbit — shorter TOF, higher cost, different arc' },
     // Kerbin → Eve  short TOF (more expensive insertion) — stresses high insertion Δv
-    { origin: 'Kerbin', destination: 'Eve',   departureUT: 20_000_000, tof:  2_160_000, r0: 100_000, r1: 100_000 },
+    { origin: 'Kerbin', destination: 'Eve',   departureUT: 20_000_000, tof:  2_160_000, r0: 100_000, r1: 100_000,
+      description: 'Kerbin→Eve short TOF — stresses high insertion Δv from steep approach' },
     // Duna → Kerbin (non-Kerbin origin — validates origin body generalisation)
-    { origin: 'Duna',   destination: 'Kerbin', departureUT: 10_000_000, tof:  5_184_000, r0:  60_000, r1: 100_000 },
+    { origin: 'Duna',   destination: 'Kerbin', departureUT: 10_000_000, tof:  5_184_000, r0:  60_000, r1: 100_000,
+      description: 'Duna→Kerbin — non-Kerbin origin, validates origin body generalisation' },
 ];
 
 // ---- Run -------------------------------------------------------------------
@@ -95,7 +99,21 @@ const results = cases.map(c => {
         null, null, null, null, null  // let Orbit.transfer compute positions/velocities
     );
 
-    return {
+    // Convert LWP ejection angle [0, 2π) rad → signed degrees matching our C# convention:
+    //   (0°, 180°] → positive (prograde side)
+    //   (180°, 360°) → negative (retrograde side), via angleDeg = 180 − angleDeg
+    let ejectionAngleDeg = null;
+    let ejectionInclinationDeg = null;
+    if (transfer.ejectionAngle != null && !isNaN(transfer.ejectionAngle)) {
+        let angleDeg = transfer.ejectionAngle * 180 / Math.PI;
+        if (angleDeg > 180) angleDeg = 180 - angleDeg;
+        ejectionAngleDeg = angleDeg;
+    }
+    if (transfer.ejectionInclination != null && !isNaN(transfer.ejectionInclination)) {
+        ejectionInclinationDeg = transfer.ejectionInclination * 180 / Math.PI;
+    }
+
+    const result = {
         source:              'alexmoon/ksp LWP (javascripts/, ballistic, no plane change)',
         origin:              c.origin,
         destination:         c.destination,
@@ -106,7 +124,11 @@ const results = cases.map(c => {
         ejectionDeltaV:      transfer.ejectionDeltaV,
         insertionDeltaV:     transfer.insertionDeltaV,
         totalDeltaV:         transfer.deltaV,
+        ejectionAngleDeg,
+        ejectionInclinationDeg,
     };
+    if (c.description) result.description = c.description;
+    return result;
 });
 
 console.log(JSON.stringify(results, null, 2));

@@ -1,4 +1,4 @@
-﻿[
+[
   {
     "source": "alexmoon/ksp LWP (javascripts/, ballistic, no plane change)",
     "origin": "Kerbin",
@@ -9,7 +9,9 @@
     "destinationOrbitAltitude": 100000,
     "ejectionDeltaV": 1041.103524718279,
     "insertionDeltaV": 680.3076926832185,
-    "totalDeltaV": 1721.4112174014977
+    "totalDeltaV": 1721.4112174014977,
+    "ejectionAngleDeg": 164.06537558218497,
+    "ejectionInclinationDeg": 1.9526302547257688
   },
   {
     "source": "alexmoon/ksp LWP (javascripts/, ballistic, no plane change)",
@@ -21,7 +23,9 @@
     "destinationOrbitAltitude": 100000,
     "ejectionDeltaV": 3013.5572085643216,
     "insertionDeltaV": 3000.924801006765,
-    "totalDeltaV": 6014.482009571087
+    "totalDeltaV": 6014.482009571087,
+    "ejectionAngleDeg": 45.382877384865644,
+    "ejectionInclinationDeg": -5.689712810036627
   },
   {
     "source": "alexmoon/ksp LWP (javascripts/, ballistic, no plane change)",
@@ -33,7 +37,9 @@
     "destinationOrbitAltitude": 100000,
     "ejectionDeltaV": 5755.177746317045,
     "insertionDeltaV": 2824.349835876079,
-    "totalDeltaV": 8579.527582193125
+    "totalDeltaV": 8579.527582193125,
+    "ejectionAngleDeg": 2.3190757992970146,
+    "ejectionInclinationDeg": 6.168759001955758
   },
   {
     "source": "alexmoon/ksp LWP (javascripts/, ballistic, no plane change)",
@@ -45,7 +51,9 @@
     "destinationOrbitAltitude": 100000,
     "ejectionDeltaV": 13289.741334230495,
     "insertionDeltaV": 3814.1508073369832,
-    "totalDeltaV": 17103.892141567478
+    "totalDeltaV": 17103.892141567478,
+    "ejectionAngleDeg": -143.79047241362656,
+    "ejectionInclinationDeg": 0.7207277546667865
   },
   {
     "source": "alexmoon/ksp LWP (javascripts/, ballistic, no plane change)",
@@ -57,7 +65,9 @@
     "destinationOrbitAltitude": 100000,
     "ejectionDeltaV": 7177.098084182205,
     "insertionDeltaV": 10686.943492520933,
-    "totalDeltaV": 17864.041576703137
+    "totalDeltaV": 17864.041576703137,
+    "ejectionAngleDeg": -92.88261471090726,
+    "ejectionInclinationDeg": -2.3929555431982235
   },
   {
     "source": "alexmoon/ksp LWP (javascripts/, ballistic, no plane change)",
@@ -69,11 +79,12 @@
     "destinationOrbitAltitude": 100000,
     "ejectionDeltaV": 3665.685792486894,
     "insertionDeltaV": 5573.219935583993,
-    "totalDeltaV": 9238.905728070888
+    "totalDeltaV": 9238.905728070888,
+    "ejectionAngleDeg": -54.06044418831971,
+    "ejectionInclinationDeg": -8.47745813020755
   },
   {
     "source": "alexmoon/ksp LWP (javascripts/, ballistic, no plane change)",
-    "description": "Kerbin→Duna second window, 60 km capture orbit — validates different epoch and non-100km altitude",
     "origin": "Kerbin",
     "destination": "Duna",
     "departureUT": 14256000,
@@ -82,11 +93,13 @@
     "destinationOrbitAltitude": 60000,
     "ejectionDeltaV": 8135.149436073992,
     "insertionDeltaV": 4797.372803384034,
-    "totalDeltaV": 12932.522239458027
+    "totalDeltaV": 12932.522239458027,
+    "ejectionAngleDeg": -145.18174718273735,
+    "ejectionInclinationDeg": 0.06350173675591764,
+    "description": "KerbinÔåÆDuna second window, 60 km capture orbit ÔÇö validates different epoch and non-100km altitude"
   },
   {
     "source": "alexmoon/ksp LWP (javascripts/, ballistic, no plane change)",
-    "description": "Kerbin→Jool second geometry, 200 km Jool orbit — shorter TOF, higher cost, different arc",
     "origin": "Kerbin",
     "destination": "Jool",
     "departureUT": 30000000,
@@ -95,11 +108,13 @@
     "destinationOrbitAltitude": 200000,
     "ejectionDeltaV": 9298.579455040395,
     "insertionDeltaV": 3310.370438789484,
-    "totalDeltaV": 12608.949893829878
+    "totalDeltaV": 12608.949893829878,
+    "ejectionAngleDeg": -163.55248775786526,
+    "ejectionInclinationDeg": -0.18916216748865422,
+    "description": "KerbinÔåÆJool second geometry, 200 km Jool orbit ÔÇö shorter TOF, higher cost, different arc"
   },
   {
     "source": "alexmoon/ksp LWP (javascripts/, ballistic, no plane change)",
-    "description": "Kerbin→Eve short TOF — stresses high insertion Δv from steep approach",
     "origin": "Kerbin",
     "destination": "Eve",
     "departureUT": 20000000,
@@ -108,11 +123,13 @@
     "destinationOrbitAltitude": 100000,
     "ejectionDeltaV": 4682.710999209546,
     "insertionDeltaV": 6199.456502201654,
-    "totalDeltaV": 10882.1675014112
+    "totalDeltaV": 10882.1675014112,
+    "ejectionAngleDeg": -151.96450898704808,
+    "ejectionInclinationDeg": -1.0027924248930196,
+    "description": "KerbinÔåÆEve short TOF ÔÇö stresses high insertion ╬öv from steep approach"
   },
   {
     "source": "alexmoon/ksp LWP (javascripts/, ballistic, no plane change)",
-    "description": "Duna→Kerbin — non-Kerbin origin, validates origin body generalisation",
     "origin": "Duna",
     "destination": "Kerbin",
     "departureUT": 10000000,
@@ -121,6 +138,9 @@
     "destinationOrbitAltitude": 100000,
     "ejectionDeltaV": 2138.1242562592124,
     "insertionDeltaV": 2771.345852427402,
-    "totalDeltaV": 4909.470108686614
+    "totalDeltaV": 4909.470108686614,
+    "ejectionAngleDeg": -146.62003686758095,
+    "ejectionInclinationDeg": -0.20065166553051456,
+    "description": "DunaÔåÆKerbin ÔÇö non-Kerbin origin, validates origin body generalisation"
   }
 ]

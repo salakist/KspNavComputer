@@ -45,17 +45,25 @@ Response (JSON):
     "deltaV": 950.1,
     "burnUT": 4534210,
     "burnDate": "Y1 D211 19:50:10",
-    "vector": { "prograde": 948.3, "normal": -58.1, "radial": 0.0 }
+    "vector": { "prograde": 948.3, "normal": -58.1, "radial": 0.0 },
+    "preciseManeuverText": "Precise Maneuver Information\nDepart at: ...",
+    "ejectionDetails": { "angleDeg": 113.73, "inclinationDeg": 0.02 }
   },
   "insertion": {
     "deltaV": 620.4,
     "burnUT": 9098120,
     "burnDate": "Y1 D422 19:35:20",
-    "vector": { "prograde": -620.4, "normal": 0.0, "radial": 0.0 }
+    "vector": { "prograde": -620.4, "normal": 0.0, "radial": 0.0 },
+    "preciseManeuverText": "Precise Maneuver Information\nDepart at: ...",
+    "ejectionDetails": null
   },
   "totalDeltaV": 1570.5
 }
 ```
+
+`ejectionDetails` is non-null only on the ejection burn and only when the geometry is
+non-degenerate. `angleDeg` is signed: positive = to prograde, negative = to retrograde.
+`preciseManeuverText` is always present on both burns.
 
 Error responses: 400 Bad Request with plain-text message.
 

@@ -42,10 +42,13 @@ internal static class TransferMapper
     );
 
     private static BurnDto ToBurnDto(Burn b) => new(
-        DeltaV:   b.DeltaV,
-        BurnUT:   b.BurnUT,
-        BurnDate: KspTime.Format(b.BurnUT),
-        Vector:   new BurnVectorDto(b.Vector.Prograde, b.Vector.Normal, b.Vector.Radial)
+        DeltaV:               b.DeltaV,
+        BurnUT:               b.BurnUT,
+        BurnDate:             KspTime.Format(b.BurnUT),
+        Vector:               new BurnVectorDto(b.Vector.Prograde, b.Vector.Normal, b.Vector.Radial),
+        PreciseManeuverText:  PreciseManeuverFormatter.Format(b),
+        EjectionDetails:      b.Ejection is null ? null
+                              : new EjectionDetailsDto(b.Ejection.AngleDeg, b.Ejection.InclinationDeg)
     );
 
     // Inclination is stored in degrees in DTOs; Core uses radians.

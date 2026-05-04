@@ -13,9 +13,13 @@
     "outboundEjectionDeltaV": 1041.103524718279,
     "outboundInsertionDeltaV": 680.3076926832185,
     "outboundTotalDeltaV": 1721.4112174014977,
+    "outboundEjectionAngleDeg": 164.06537558218497,
+    "outboundEjectionInclinationDeg": 1.9526302547257688,
     "returnEjectionDeltaV": 2183.955671573027,
     "returnInsertionDeltaV": 3861.2076492761826,
     "returnTotalDeltaV": 6045.163320849209,
+    "returnEjectionAngleDeg": -121.19673677180839,
+    "returnEjectionInclinationDeg": -0.00957609946699157,
     "totalDeltaV": 7766.574538250707
   },
   {
@@ -32,9 +36,13 @@
     "outboundEjectionDeltaV": 7177.098084182205,
     "outboundInsertionDeltaV": 10686.943492520933,
     "outboundTotalDeltaV": 17864.041576703137,
+    "outboundEjectionAngleDeg": -92.88261471090726,
+    "outboundEjectionInclinationDeg": -2.3929555431982235,
     "returnEjectionDeltaV": 3101.987617726565,
     "returnInsertionDeltaV": 2030.3313121259625,
     "returnTotalDeltaV": 5132.318929852528,
+    "returnEjectionAngleDeg": 15.19195829527506,
+    "returnEjectionInclinationDeg": 2.803999730874543,
     "totalDeltaV": 22996.360506555666
   }
 ]

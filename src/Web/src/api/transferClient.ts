@@ -19,11 +19,18 @@ export interface BurnVectorDto {
   radial: number;
 }
 
+export interface EjectionDetailsDto {
+  angleDeg: number;
+  inclinationDeg: number;
+}
+
 export interface BurnDto {
   deltaV: number;
   burnUT: number;
   burnDate: string;
   vector: BurnVectorDto;
+  preciseManeuverText: string;
+  ejectionDetails: EjectionDetailsDto | null;
 }
 
 export interface TransferResponse {

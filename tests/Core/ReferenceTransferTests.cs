@@ -30,7 +30,9 @@ public sealed class ReferenceTransferTests
         double DestinationOrbitAltitude,
         double EjectionDeltaV,
         double InsertionDeltaV,
-        double TotalDeltaV
+        double TotalDeltaV,
+        double? EjectionAngleDeg,
+        double? EjectionInclinationDeg
     );
 
     private static IReadOnlyList<ReferenceCase> LoadCases()
@@ -52,7 +54,8 @@ public sealed class ReferenceTransferTests
             yield return [c.Description, c.Origin, c.Destination, c.DepartureUT,
                           c.TimeOfFlight, c.ParkingOrbitAltitude,
                           c.DestinationOrbitAltitude, c.TotalDeltaV,
-                          c.EjectionDeltaV, c.InsertionDeltaV];
+                          c.EjectionDeltaV, c.InsertionDeltaV,
+                          c.EjectionAngleDeg, c.EjectionInclinationDeg];
     }
 
     [Theory]
@@ -62,7 +65,8 @@ public sealed class ReferenceTransferTests
         string origin, string destination,
         double departureUT, double tof,
         double parkAlt, double destAlt,
-        double expectedTotal, double expectedEjection, double expectedInsertion)
+        double expectedTotal, double expectedEjection, double expectedInsertion,
+        double? expectedEjectionAngleDeg, double? expectedEjectionInclinationDeg)
     {
         _ = description; // surfaced in test name via MemberData label
 
@@ -81,6 +85,14 @@ public sealed class ReferenceTransferTests
         AssertWithinPct(expectedTotal,     result.TotalDeltaV,     tolerancePct, "TotalDeltaV");
         AssertWithinPct(expectedEjection,  result.Ejection.DeltaV,  tolerancePct, "EjectionDeltaV");
         AssertWithinPct(expectedInsertion, result.Insertion.DeltaV, tolerancePct, "InsertionDeltaV");
+
+        // Ejection angle and inclination — same algorithm as LWP, so tolerance is tight (±0.5°).
+        if (expectedEjectionAngleDeg.HasValue)
+        {
+            Assert.NotNull(result.Ejection.Ejection);
+            AssertWithinDeg(expectedEjectionAngleDeg.Value, result.Ejection.Ejection!.AngleDeg,       0.5, "EjectionAngleDeg");
+            AssertWithinDeg(expectedEjectionInclinationDeg!.Value, result.Ejection.Ejection!.InclinationDeg, 0.5, "EjectionInclinationDeg");
+        }
     }
 
     private static void AssertWithinPct(double expected, double actual, double pct, string label)
@@ -90,5 +102,13 @@ public sealed class ReferenceTransferTests
             relErr <= pct,
             $"{label}: expected {expected:F2} m/s, got {actual:F2} m/s " +
             $"(relative error {relErr * 100:F3} % > tolerance {pct * 100:F1} %)");
+    }
+
+    private static void AssertWithinDeg(double expected, double actual, double toleranceDeg, string label)
+    {
+        double err = Math.Abs(actual - expected);
+        Assert.True(
+            err <= toleranceDeg,
+            $"{label}: expected {expected:F4}°, got {actual:F4}° (error {err:F4}° > tolerance {toleranceDeg}°)");
     }
 }
