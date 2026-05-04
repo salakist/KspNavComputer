@@ -22,11 +22,14 @@ src/Core/
 └── Transfer/
     ├── ParkingOrbit.cs          record: Altitude [m], Inclination [rad, default 0], Eccentricity [default 0]
     ├── TransferParameters.cs    record: Origin, Destination, DepartureUT, TOF, parking orbits
-    ├── TransferResult.cs        record: departure/arrival UT, ejection/insertion/total Δv
+    ├── BurnVector.cs            record: Prograde, Normal, Radial [m/s]; Magnitude property; Zero sentinel
+    ├── Burn.cs                  record: DeltaV [m/s], BurnUT [s UT], Vector (BurnVector)
+    ├── TransferResult.cs        record: DepartureUT, ArrivalUT, Ejection (Burn), Insertion (Burn), TotalDeltaV
     ├── RoundTripParameters.cs   record: Origin, Destination, DepartureUT, OutboundTOF, StayDuration,
     │                                    ReturnTOF, OriginOrbit, DestinationOrbit
     ├── RoundTripResult.cs       record: Outbound (TransferResult), Return (TransferResult), TotalDeltaV
-    └── TransferComputer.cs      orchestrates Kepler → Lambert → Δv; also ComputeRoundTrip (two legs)
+    ├── ManeuverCalculator.cs    internal static: converts heliocentric transfer velocity → Burn
+    └── TransferComputer.cs      orchestrates Kepler → Lambert → ManeuverCalculator; ComputeRoundTrip
 ```
 
 ## Algorithm references
@@ -41,20 +44,23 @@ src/Core/
   - **Known limitation**: the 180° (anti-podal) geometry (transfer angle = π) is a degenerate
     case where the orbit plane is undefined. Do not pass exactly-opposite position vectors.
 - Perifocal → inertial rotation: standard 3-1-3 Euler sequence R_z(-Ω)·R_x(-i)·R_z(-ω).
-- Parking orbit speed at periapsis (1c): `v_park = sqrt(μ·(1+e)/r_peri)`.  For circular
+- Parking orbit speed at periapsis: `v_park = sqrt(μ·(1+e)/r_peri)`.  For circular
   orbits (e=0) this equals `v_circ`.  Burn is always executed at periapsis.
-- Ejection Δv: law-of-cosines plane change with effective angle
+- Ejection Δv + burn vector: `ManeuverCalculator` decomposes into prograde/normal components
+  using law-of-cosines plane change with effective angle
   `deltaI = max(0, |alpha| − i_park)`, where `alpha = asin(v∞_z / |v∞|)` and `i_park`
-  is the parking orbit inclination.  Full formula:
-  `sqrt(v_park² + v_hyper² − 2·v_park·v_hyper·cos(deltaI))`,
-  where `v_hyper = sqrt(v∞² + 2μ/r_peri − 2μ/r_SOI)`.
-  Collapses to `|v_hyper − v_park|` when deltaI = 0.
-- Insertion Δv: `|v_hyper − v_park|` (no inclination term; matches LWP
-  `insertionToCircularDeltaV`).  Eccentricity is still applied via v_park.
-  **Known limitation**: destination orbit inclination is accepted but ignored — the
-  burn is modelled as pure deceleration.  For an inclined capture orbit this
-  underestimates the true Δv; the correct formula is the same law-of-cosines as
-  ejection.  Deferred to a future increment.
+  is the parking orbit inclination.
+  `prograde = v_hyper·cos(deltaI) − v_park`,  `normal = v_hyper·sin(deltaI)·sign(alpha)`,
+  `v_hyper = sqrt(v∞² + 2μ/r_peri − 2μ/r_SOI)`.
+  Collapses to pure prograde `|v_hyper − v_park|` when deltaI = 0.
+- Insertion Δv + burn vector: symmetric law-of-cosines when `i_dest > 0`:
+  `deltaI_arr = max(0, |alpha_arr| − i_dest)`.
+  `prograde = v_park − v_hyper·cos(deltaI_arr)`,  `normal = −v_hyper·sin(deltaI_arr)·sign(alpha_arr)`.
+  When `i_dest = 0` (default): pure deceleration `v_park − v_hyper` (backward compatible,
+  matches LWP `insertionToCircularDeltaV`).
+- Precise periapsis burn UT: `|a| = μ/v∞²`, `e_hyp = 1 + r_peri/|a|`,
+  `F = acosh((r_SOI/|a| + 1) / e_hyp)`, `t = sqrt(|a|³/μ)·(e_hyp·sinh(F) − F)`.
+  Ejection: `burnUT = departureUT − t`.  Insertion: `burnUT = arrivalUT + t`.
 
 ## Body data
 
