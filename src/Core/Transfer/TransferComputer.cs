@@ -89,7 +89,7 @@ public static class TransferComputer
             || p.TransferType == TransferType.Optimal)
         {
             var pcResult = PlaneChangeComputer.Compute(
-                r1, v1Body, r2, v2Body, p.TimeOfFlight, departureUT, mu);
+                r1, v1Body, r2, p.TimeOfFlight, departureUT, mu);
 
             if (pcResult.HasValue)
             {

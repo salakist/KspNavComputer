@@ -50,7 +50,7 @@ internal static class PlaneChangeComputer
     /// </summary>
     public static (Vector3d VT1, Vector3d VT2, PlaneChangeBurn PlaneChange)? Compute(
         Vector3d r1, Vector3d v1Body,
-        Vector3d r2, Vector3d v2Body,
+        Vector3d r2,
         double tof, double t0, double mu)
     {
         var n0 = Vector3d.Cross(r1, v1Body).Normalize();
