@@ -81,7 +81,7 @@ cd src/Web ; npm run build
 |-----------|-------------|--------|
 | 1a | Scaffold + one-way circular transfer | complete |
 | 1b | Round trip | complete |
-| 1c | Inclined / elliptical parking orbits | not started |
+| 1c | Inclined / elliptical parking orbits | complete |
 | 2  | Precise Maneuver export | not started |
 | 3  | Transfer window porkchop plot | not started |
 | 4  | OPM + MPE body support | not started |

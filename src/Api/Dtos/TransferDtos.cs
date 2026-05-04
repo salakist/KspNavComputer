@@ -6,7 +6,11 @@ public record TransferRequest(
     double DepartureUT,
     double TimeOfFlight,
     double OriginAltitude,
-    double DestinationAltitude
+    double DestinationAltitude,
+    double OriginInclination      = 0,   // degrees
+    double DestinationInclination = 0,   // degrees
+    double OriginEccentricity     = 0,
+    double DestinationEccentricity = 0
 );
 
 public record TransferResponse(

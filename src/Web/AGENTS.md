@@ -46,4 +46,6 @@ dotnet run       # starts on http://localhost:5000
 - All time inputs to the API are in UT seconds; the UI converts year/day inputs
   using the KSP calendar constants (1 year = 9 203 400 s, 1 day = 21 600 s).
 - Altitude inputs are in km in the UI; multiplied by 1 000 before sending to API.
+- Inclination inputs are in degrees in the UI; the API converts to radians internally.
+- Eccentricity inputs are dimensionless (0 = circular).
 - No global state management library — React `useState`/`useEffect` only for 1a.

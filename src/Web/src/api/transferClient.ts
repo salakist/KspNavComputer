@@ -7,6 +7,10 @@ export interface TransferRequest {
   timeOfFlight: number;
   originAltitude: number;
   destinationAltitude: number;
+  originInclination?: number;       // degrees, default 0
+  destinationInclination?: number;  // degrees, default 0
+  originEccentricity?: number;      // default 0
+  destinationEccentricity?: number; // default 0
 }
 
 export interface TransferResponse {
@@ -53,6 +57,10 @@ export interface RoundTripRequest {
   returnTimeOfFlight: number;
   originAltitude: number;
   destinationAltitude: number;
+  originInclination?: number;       // degrees, default 0
+  destinationInclination?: number;  // degrees, default 0
+  originEccentricity?: number;      // default 0
+  destinationEccentricity?: number; // default 0
 }
 
 export interface RoundTripResponse {

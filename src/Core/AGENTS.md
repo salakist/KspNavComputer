@@ -20,7 +20,7 @@ src/Core/
 ├── Time/
 │   └── KspTime.cs            UT↔KSP calendar (426-day year, 6-hour day); Format helper
 └── Transfer/
-    ├── ParkingOrbit.cs          record: Altitude, Inclination (reserved), Eccentricity (reserved)
+    ├── ParkingOrbit.cs          record: Altitude [m], Inclination [rad, default 0], Eccentricity [default 0]
     ├── TransferParameters.cs    record: Origin, Destination, DepartureUT, TOF, parking orbits
     ├── TransferResult.cs        record: departure/arrival UT, ejection/insertion/total Δv
     ├── RoundTripParameters.cs   record: Origin, Destination, DepartureUT, OutboundTOF, StayDuration,
@@ -41,10 +41,20 @@ src/Core/
   - **Known limitation**: the 180° (anti-podal) geometry (transfer angle = π) is a degenerate
     case where the orbit plane is undefined. Do not pass exactly-opposite position vectors.
 - Perifocal → inertial rotation: standard 3-1-3 Euler sequence R_z(-Ω)·R_x(-i)·R_z(-ω).
-- Ejection Δv: `sqrt(v_circ² + v_peri² − 2·v_circ·v_peri·cos(i_ej))` (law of cosines for
-  plane change when ejection inclination ≠ 0), where `v_peri = sqrt(v∞² + 2μ/r − 2μ/r_SOI)`.
-- Insertion Δv: `|sqrt(v∞² + 2·v_circ² − 2μ/r_SOI) − v_circ|` (no plane-change term;
-  matches LWP `insertionToCircularDeltaV`).
+- Parking orbit speed at periapsis (1c): `v_park = sqrt(μ·(1+e)/r_peri)`.  For circular
+  orbits (e=0) this equals `v_circ`.  Burn is always executed at periapsis.
+- Ejection Δv: law-of-cosines plane change with effective angle
+  `deltaI = max(0, |alpha| − i_park)`, where `alpha = asin(v∞_z / |v∞|)` and `i_park`
+  is the parking orbit inclination.  Full formula:
+  `sqrt(v_park² + v_hyper² − 2·v_park·v_hyper·cos(deltaI))`,
+  where `v_hyper = sqrt(v∞² + 2μ/r_peri − 2μ/r_SOI)`.
+  Collapses to `|v_hyper − v_park|` when deltaI = 0.
+- Insertion Δv: `|v_hyper − v_park|` (no inclination term; matches LWP
+  `insertionToCircularDeltaV`).  Eccentricity is still applied via v_park.
+  **Known limitation**: destination orbit inclination is accepted but ignored — the
+  burn is modelled as pure deceleration.  For an inclined capture orbit this
+  underestimates the true Δv; the correct formula is the same law-of-cosines as
+  ejection.  Deferred to a future increment.
 
 ## Body data
 

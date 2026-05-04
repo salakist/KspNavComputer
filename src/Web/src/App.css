@@ -8,6 +8,9 @@ header p { color: #888; }
 button[type=submit] { align-self: flex-start; padding: 0.6rem 1.4rem; cursor: pointer; border-radius: 4px; border: none; background: #646cff; color: #fff; font-size: 1rem; }
 button:disabled { opacity: 0.5; cursor: not-allowed; }
 .error { color: #f55; margin-top: 1rem; }
+.label-not-modelled { opacity: 0.45; cursor: default; }
+.label-not-modelled input { pointer-events: none; }
+.label-not-modelled .not-modelled-note { font-size: 0.72rem; color: #888; }
 .result-panel { margin-top: 2rem; }
 .result-panel table { border-collapse: collapse; width: 100%; max-width: 400px; }
 .result-panel th, .result-panel td { padding: 0.5rem 1rem; border: 1px solid #444; text-align: left; }
