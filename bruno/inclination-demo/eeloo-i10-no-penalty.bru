@@ -1,5 +1,5 @@
 meta {
-  name: Eeloo i_dest=10° (above arrival asymptote — no penalty expected)
+  name: Eeloo i_dest=10 (above arrival asymptote - no penalty expected)
   type: http
   seq: 3
 }
@@ -26,7 +26,9 @@ body:json {
   }
 }
 
-// A 10° inclined capture orbit fully covers the arrival asymptote angle.
-// ΔI_arr = max(0, |α_arr| − 10°) = 0 → no plane-change cost.
-// Expect insertion.deltaV ≈ 3814 m/s (same as i_dest=0) and insertion.vector.normal ≈ 0.
-// Compare with eeloo-i3-penalty to see the sensitivity to destination inclination.
+docs {
+  A 10 deg inclined capture orbit fully covers the arrival asymptote angle.
+  dI_arr = max(0, |a_arr| - 10) = 0 -> no plane-change cost.
+  Expect insertion.deltaV ~3814 m/s (same as i_dest=0) and insertion.vector.normal ~0.
+  Compare with eeloo-i3-penalty to see the sensitivity to destination inclination.
+}

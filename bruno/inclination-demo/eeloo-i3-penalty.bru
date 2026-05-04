@@ -1,5 +1,5 @@
 meta {
-  name: Eeloo i_dest=3° (below arrival asymptote — plane-change penalty expected)
+  name: Eeloo i_dest=3 (below arrival asymptote - plane-change penalty expected)
   type: http
   seq: 2
 }
@@ -26,7 +26,9 @@ body:json {
   }
 }
 
-// Eeloo's orbital inclination ~6.15° means the arrival asymptote sits
-// several degrees out of the reference plane (|α_arr| > 3° likely).
-// When |α_arr| > i_dest=3°, ΔI_arr = |α_arr| − 3° > 0 → plane-change cost added.
-// Expect insertion.deltaV > 3814 m/s and insertion.vector.normal ≠ 0.
+docs {
+  Eeloo's orbital inclination ~6.15 deg means the arrival asymptote sits
+  several degrees out of the reference plane (|a_arr| > 3 deg likely).
+  When |a_arr| > i_dest=3, dI_arr = |a_arr| - 3 > 0 -> plane-change cost added.
+  Expect insertion.deltaV > 3814 m/s and insertion.vector.normal != 0.
+}
