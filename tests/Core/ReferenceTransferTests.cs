@@ -79,8 +79,8 @@ public sealed class ReferenceTransferTests
 
         const double tolerancePct = 0.01; // 1 %
         AssertWithinPct(expectedTotal,     result.TotalDeltaV,     tolerancePct, "TotalDeltaV");
-        AssertWithinPct(expectedEjection,  result.EjectionDeltaV,  tolerancePct, "EjectionDeltaV");
-        AssertWithinPct(expectedInsertion, result.InsertionDeltaV, tolerancePct, "InsertionDeltaV");
+        AssertWithinPct(expectedEjection,  result.Ejection.DeltaV,  tolerancePct, "EjectionDeltaV");
+        AssertWithinPct(expectedInsertion, result.Insertion.DeltaV, tolerancePct, "InsertionDeltaV");
     }
 
     private static void AssertWithinPct(double expected, double actual, double pct, string label)

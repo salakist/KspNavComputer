@@ -54,10 +54,10 @@ public class RoundTripTransferTests
     {
         var result = TransferComputer.ComputeRoundTrip(MakeParams());
 
-        Assert.True(result.Outbound.EjectionDeltaV  > 0, "Outbound ejection Δv must be positive.");
-        Assert.True(result.Outbound.InsertionDeltaV > 0, "Outbound insertion Δv must be positive.");
-        Assert.True(result.Return.EjectionDeltaV    > 0, "Return ejection Δv must be positive.");
-        Assert.True(result.Return.InsertionDeltaV   > 0, "Return insertion Δv must be positive.");
+        Assert.True(result.Outbound.Ejection.DeltaV  > 0, "Outbound ejection Δv must be positive.");
+        Assert.True(result.Outbound.Insertion.DeltaV > 0, "Outbound insertion Δv must be positive.");
+        Assert.True(result.Return.Ejection.DeltaV    > 0, "Return ejection Δv must be positive.");
+        Assert.True(result.Return.Insertion.DeltaV   > 0, "Return insertion Δv must be positive.");
     }
 
     [Fact]

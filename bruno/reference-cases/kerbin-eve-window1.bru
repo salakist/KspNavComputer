@@ -1,0 +1,30 @@
+meta {
+  name: Kerbin -> Eve (window 1)
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/api/transfer
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "origin": "Kerbin",
+    "destination": "Eve",
+    "departureUT": 3000000,
+    "timeOfFlight": 4320000,
+    "originAltitude": 100000,
+    "destinationAltitude": 100000
+  }
+}
+
+docs {
+  LWP reference: ejection 7177.1 m/s, insertion 10686.9 m/s, total 17864.0 m/s
+}

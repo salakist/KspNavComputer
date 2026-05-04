@@ -128,16 +128,9 @@ export default function TransferForm() {
             <input type="number" min={1} value={destAlt}
               onChange={e => setDestAlt(Number(e.target.value))} />
           </label>
-          {/* Destination inclination is accepted by the API but has no effect:
-              insertion Δv is currently modelled as pure deceleration.
-              The field is disabled until that is implemented. */}
-          <label
-            className="label-not-modelled"
-            title="Destination inclination is not yet modelled — insertion Δv is computed as pure deceleration regardless of capture orbit inclination."
-          >
+          <label>
             Inclination (°)
-            <span className="not-modelled-note">(not modelled yet)</span>
-            <input type="number" min={0} max={180} step={0.1} value={destInc} disabled
+            <input type="number" min={0} max={180} step={0.1} value={destInc}
               onChange={e => setDestInc(Number(e.target.value))} />
           </label>
           <label>
@@ -208,9 +201,19 @@ function TransferResultPanel({ title, result }: { title: string; result: Transfe
         <tbody>
           <tr><th>Departure</th><td>{result.departureDate}</td></tr>
           <tr><th>Arrival</th>  <td>{result.arrivalDate}</td></tr>
-          <tr><th>Ejection Δv</th>  <td>{result.ejectionDeltaV.toFixed(1)} m/s</td></tr>
-          <tr><th>Insertion Δv</th> <td>{result.insertionDeltaV.toFixed(1)} m/s</td></tr>
-          <tr className="total"><th>Total Δv</th><td>{result.totalDeltaV.toFixed(1)} m/s</td></tr>
+          <tr className="section-header"><th colSpan={2}>Ejection burn</th></tr>
+          <tr><th>Periapsis UT</th><td>{result.ejection.burnDate}</td></tr>
+          <tr><th>Prograde Δv</th> <td>{result.ejection.vector.prograde.toFixed(1)} m/s</td></tr>
+          <tr><th>Normal Δv</th>   <td>{result.ejection.vector.normal.toFixed(1)} m/s</td></tr>
+          <tr><th>Radial Δv</th>   <td>{result.ejection.vector.radial.toFixed(1)} m/s</td></tr>
+          <tr><th>Total</th>       <td>{result.ejection.deltaV.toFixed(1)} m/s</td></tr>
+          <tr className="section-header"><th colSpan={2}>Insertion burn</th></tr>
+          <tr><th>Periapsis UT</th><td>{result.insertion.burnDate}</td></tr>
+          <tr><th>Prograde Δv</th> <td>{result.insertion.vector.prograde.toFixed(1)} m/s</td></tr>
+          <tr><th>Normal Δv</th>   <td>{result.insertion.vector.normal.toFixed(1)} m/s</td></tr>
+          <tr><th>Radial Δv</th>   <td>{result.insertion.vector.radial.toFixed(1)} m/s</td></tr>
+          <tr><th>Total</th>       <td>{result.insertion.deltaV.toFixed(1)} m/s</td></tr>
+          <tr className="total"><th>Mission Δv</th><td>{result.totalDeltaV.toFixed(1)} m/s</td></tr>
         </tbody>
       </table>
     </div>

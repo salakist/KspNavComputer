@@ -1,0 +1,30 @@
+meta {
+  name: Kerbin -> Moho
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrl}}/api/transfer
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "origin": "Kerbin",
+    "destination": "Moho",
+    "departureUT": 1800000,
+    "timeOfFlight": 3456000,
+    "originAltitude": 100000,
+    "destinationAltitude": 100000
+  }
+}
+
+docs {
+  LWP reference: ejection 3665.7 m/s, insertion 5573.2 m/s, total 9238.9 m/s
+}

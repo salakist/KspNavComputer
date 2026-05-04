@@ -39,8 +39,8 @@ public class TransferComputerTests
 
         // Total Δv should be physically plausible: 1 000 – 3 500 m/s
         Assert.InRange(result.TotalDeltaV, 1_000, 3_500);
-        Assert.True(result.EjectionDeltaV  > 0, "Ejection Δv must be positive.");
-        Assert.True(result.InsertionDeltaV > 0, "Insertion Δv must be positive.");
+        Assert.True(result.Ejection.DeltaV  > 0, "Ejection Δv must be positive.");
+        Assert.True(result.Insertion.DeltaV > 0, "Insertion Δv must be positive.");
         Assert.Equal(departureUT + timeOfFlight, result.ArrivalUT);
     }
 
