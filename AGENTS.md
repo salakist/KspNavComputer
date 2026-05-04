@@ -37,6 +37,8 @@ KspNavComputer/
 │   └── Core/          KspNavComputer.Core.Tests    — xUnit unit tests
 ├── scripts/
 │   ├── get-agent-token.ps1                         — salakist-agent GitHub App token
+│   ├── hooks/
+│   │   └── prepare-commit-msg                      — auto-appends Agent trailer for salakist-agent commits
 │   └── checks/
 │       └── run-checks.ps1                          — quality gate (created end of Increment 1)
 ├── AGENTS.md                                       — this file
@@ -78,7 +80,7 @@ cd src/Web ; npm run build
 | Increment | Description | Status |
 |-----------|-------------|--------|
 | 1a | Scaffold + one-way circular transfer | complete |
-| 1b | Round trip | not started |
+| 1b | Round trip | complete |
 | 1c | Inclined / elliptical parking orbits | not started |
 | 2  | Precise Maneuver export | not started |
 | 3  | Transfer window porkchop plot | not started |
