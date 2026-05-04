@@ -135,6 +135,85 @@ public class InclinedEllipticalOrbitTests
     }
 
     // ---------------------------------------------------------------------------
+    // Burn vector tests
+    // ---------------------------------------------------------------------------
+
+    [Fact(DisplayName = "Polar parking orbit: ejection burn vector is purely prograde")]
+    public void EjectionBurnVector_IsPurePrograde_ForPolarOrbit()
+    {
+        // Polar orbit: i_park = 90° → deltaI = max(0, |α| − 90°) = 0 always.
+        // No plane-change component → pure prograde ejection.
+        var result = Compute(new ParkingOrbit(OriginAlt, Inclination: Math.PI / 2));
+
+        Assert.Equal(0.0, result.EjectionBurnVector.Normal,  precision: 1);
+        Assert.Equal(0.0, result.EjectionBurnVector.Radial,  precision: 1);
+        Assert.True(result.EjectionBurnVector.Prograde > 0,
+            "Ejection prograde component should be positive (speed up to escape)");
+
+        double mag = result.EjectionBurnVector.Magnitude;
+        Assert.Equal(result.EjectionDeltaV, mag, precision: 1);
+    }
+
+    [Fact(DisplayName = "Ejection burn vector magnitude always equals EjectionDeltaV")]
+    public void EjectionBurnVector_Magnitude_MatchesEjectionDeltaV()
+    {
+        // Equatorial orbit: deltaI = |α|, so normal ≠ 0 in general.
+        // The law-of-cosines scalar and vector components must be consistent.
+        var result = Compute(new ParkingOrbit(OriginAlt, Inclination: 0));
+
+        double mag = result.EjectionBurnVector.Magnitude;
+        Assert.Equal(result.EjectionDeltaV, mag, precision: 1);
+    }
+
+    [Fact(DisplayName = "Ejection periapsis burn UT is earlier than departure UT")]
+    public void EjectionBurnUT_IsEarlierThanDepartureUT()
+    {
+        var result = Compute(new ParkingOrbit(OriginAlt));
+
+        Assert.True(
+            result.EjectionBurnUT < result.DepartureUT,
+            $"EjectionBurnUT ({result.EjectionBurnUT:F0} s) should be before " +
+            $"DepartureUT ({result.DepartureUT:F0} s)");
+    }
+
+    [Fact(DisplayName = "Insertion burn vector is pure retrograde when destination inclination is zero")]
+    public void InsertionBurnVector_IsPureRetrograde_WhenIDestIsZero()
+    {
+        // i_dest = 0 → pure deceleration; prograde < 0 (retrograde), normal = 0.
+        var result = ComputeDest(new ParkingOrbit(DestAlt, Inclination: 0));
+
+        Assert.True(result.InsertionBurnVector.Prograde < 0,
+            "Insertion prograde should be negative (retrograde capture burn)");
+        Assert.Equal(0.0, result.InsertionBurnVector.Normal,  precision: 1);
+        Assert.Equal(0.0, result.InsertionBurnVector.Radial,  precision: 1);
+
+        double mag = result.InsertionBurnVector.Magnitude;
+        Assert.Equal(result.InsertionDeltaV, mag, precision: 1);
+    }
+
+    [Fact(DisplayName = "Insertion burn vector magnitude always equals InsertionDeltaV")]
+    public void InsertionBurnVector_Magnitude_MatchesInsertionDeltaV()
+    {
+        var result = ComputeDest(new ParkingOrbit(DestAlt));
+
+        double mag = result.InsertionBurnVector.Magnitude;
+        Assert.Equal(result.InsertionDeltaV, mag, precision: 1);
+    }
+
+    [Fact(DisplayName = "Insertion periapsis burn UT is later than arrival UT")]
+    public void InsertionBurnUT_IsLaterThanArrivalUT()
+    {
+        // Spacecraft enters SOI at arrivalUT and coasts to periapsis;
+        // the burn happens after SOI entry.
+        var result = ComputeDest(new ParkingOrbit(DestAlt));
+
+        Assert.True(
+            result.InsertionBurnUT > result.ArrivalUT,
+            $"InsertionBurnUT ({result.InsertionBurnUT:F0} s) should be after " +
+            $"ArrivalUT ({result.ArrivalUT:F0} s)");
+    }
+
+    // ---------------------------------------------------------------------------
     // Helpers
     // ---------------------------------------------------------------------------
 

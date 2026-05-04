@@ -13,6 +13,8 @@ public record TransferRequest(
     double DestinationEccentricity = 0
 );
 
+public record BurnVectorDto(double Prograde, double Normal, double Radial);
+
 public record TransferResponse(
     double DepartureUT,
     string DepartureDate,
@@ -20,5 +22,11 @@ public record TransferResponse(
     string ArrivalDate,
     double EjectionDeltaV,
     double InsertionDeltaV,
-    double TotalDeltaV
+    double TotalDeltaV,
+    double EjectionBurnUT,
+    string EjectionBurnDate,
+    BurnVectorDto EjectionBurnVector,
+    double InsertionBurnUT,
+    string InsertionBurnDate,
+    BurnVectorDto InsertionBurnVector
 );

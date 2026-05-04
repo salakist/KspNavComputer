@@ -54,27 +54,30 @@ public static class TransferComputer
         allSolutions.AddRange(LambertSolver.SolveAllRevolutions(r1, r2, p.TimeOfFlight, mu, maxRevs: 10, prograde: true));
         allSolutions.AddRange(LambertSolver.SolveAllRevolutions(r1, r2, p.TimeOfFlight, mu, maxRevs: 10, prograde: false));
 
-        double bestDvEject = double.MaxValue, bestDvInsert = double.MaxValue;
+        var bestEject  = (Dv: double.MaxValue, Vec: BurnVector.Zero, UT: 0.0);
+        var bestInsert = (Dv: double.MaxValue, Vec: BurnVector.Zero, UT: 0.0);
+
         foreach (var (vT1, vT2) in allSolutions)
         {
-            double dve = ComputeManeuverDv(p.OriginOrbit,      p.Origin,      vT1, v1Body, isEjection: true);
-            double dvi = ComputeManeuverDv(p.DestinationOrbit, p.Destination, vT2, v2Body, isEjection: false);
-            if (dve + dvi < bestDvEject + bestDvInsert)
+            var eject  = ComputeManeuverDv(p.OriginOrbit,      p.Origin,      vT1, v1Body, isEjection: true,  refUT: departureUT);
+            var insert = ComputeManeuverDv(p.DestinationOrbit, p.Destination, vT2, v2Body, isEjection: false, refUT: arrivalUT);
+            if (eject.Dv + insert.Dv < bestEject.Dv + bestInsert.Dv)
             {
-                bestDvEject  = dve;
-                bestDvInsert = dvi;
+                bestEject  = eject;
+                bestInsert = insert;
             }
         }
 
-        double dvEject  = bestDvEject;
-        double dvInsert = bestDvInsert;
-
         return new TransferResult(
-            DepartureUT:      departureUT,
-            ArrivalUT:        arrivalUT,
-            EjectionDeltaV:   dvEject,
-            InsertionDeltaV:  dvInsert,
-            TotalDeltaV:      dvEject + dvInsert
+            DepartureUT:         departureUT,
+            ArrivalUT:           arrivalUT,
+            EjectionDeltaV:      bestEject.Dv,
+            InsertionDeltaV:     bestInsert.Dv,
+            TotalDeltaV:         bestEject.Dv + bestInsert.Dv,
+            EjectionBurnUT:      bestEject.UT,
+            InsertionBurnUT:     bestInsert.UT,
+            EjectionBurnVector:  bestEject.Vec,
+            InsertionBurnVector: bestInsert.Vec
         );
     }
 
@@ -122,67 +125,111 @@ public static class TransferComputer
 
     /// <summary>
     /// Converts a heliocentric transfer velocity vector into a parking-orbit
-    /// ejection (or capture) Δv.
+    /// manoeuvre: returns the Δv scalar, burn vector (prograde/normal/radial in
+    /// the local orbital frame at periapsis), and precise periapsis burn UT.
     ///
-    /// Supports:
-    /// <list type="bullet">
-    ///   <item>Circular and elliptical parking orbits (via eccentricity).</item>
-    ///   <item>
-    ///     Inclined parking orbits for ejection: the departure hyperbola's
-    ///     inclination above the ecliptic is reduced by the parking orbit's
-    ///     inclination, because an optimally-timed ejection burn can exploit the
-    ///     orbit's tilt.  Effective angle = max(0, |α| − i_park).
-    ///   </item>
-    /// </list>
+    /// Burn vector decomposition (periapsis frame, all in m/s):
+    ///   Ejection:  prograde = v_hyper·cos(ΔI) − v_park
+    ///              normal   = v_hyper·sin(ΔI)·sign(α)
+    ///   Insertion: prograde = v_park − v_hyper·cos(ΔI_arr)  (retrograde)
+    ///              normal   = −v_hyper·sin(ΔI_arr)·sign(α_arr)
+    ///   Radial = 0 in both cases.
     ///
-    /// For insertion the inclination term is omitted (matching LWP
-    /// <c>insertionToCircularDeltaV</c>); eccentricity is still applied.
+    /// Inclination treatment:
+    ///   Ejection:  ΔI = max(0, |α| − i_park), where α = asin(v∞_z / |v∞|).
+    ///   Insertion: ΔI_arr = max(0, |α_arr| − i_dest) when i_dest > 0.
+    ///              When i_dest = 0, insertion is pure deceleration
+    ///              ("capture into natural arrival plane", backward compatible).
     ///
-    /// Steps:
-    ///   1. v∞ = |v_transfer − v_body|
-    ///   2. v_p = √(v∞² + 2μ/r_peri − 2μ/r_SOI)   (hyperbolic periapsis speed)
-    ///   3. v_park = √(μ·(1+e)/r_peri)              (parking orbit speed at periapsis)
-    ///   4. Δv = |v_p − v_park|  (no inclination)
-    ///      or  √(v_park² + v_p² − 2·v_park·v_p·cos Δi)  (with Δi)
+    /// Periapsis burn UT:
+    ///   |a| = μ/v∞²,  e = 1 + r_peri/|a|
+    ///   F = acosh((r_SOI/|a| + 1)/e),  t = √(|a|³/μ)·(e·sinh(F) − F)
+    ///   Ejection:  burnUT = refUT − t  (burn before SOI exit)
+    ///   Insertion: burnUT = refUT + t  (burn after SOI entry)
     /// </summary>
-    private static double ComputeManeuverDv(
+    private static (double Dv, BurnVector Vector, double BurnUT) ComputeManeuverDv(
         ParkingOrbit parkingOrbit, CelestialBody body,
-        Vector3d vTransfer, Vector3d vBody, bool isEjection)
+        Vector3d vTransfer, Vector3d vBody, bool isEjection, double refUT)
     {
         double muBody = body.GravParam;
         double rPeri  = body.Radius + parkingOrbit.Altitude;
         double rSoi   = body.SphereOfInfluence;
         double e      = parkingOrbit.Eccentricity;
 
-        // Parking orbit speed at periapsis.
-        // For circular (e=0): v_park = √(μ/r) = v_circular.
+        // Parking orbit periapsis speed: √(μ·(1+e)/r). Equals v_circ when e=0.
         double vPark = Math.Sqrt(muBody * (1.0 + e) / rPeri);
 
-        // Hyperbolic periapsis speed (vis-viva corrected for SOI boundary).
-        Vector3d vInfVec   = vTransfer - vBody;
-        double   vInf      = vInfVec.Magnitude;
+        // Hyperbolic excess velocity vector and periapsis speed.
+        Vector3d vInfVec    = vTransfer - vBody;
+        double   vInf       = vInfVec.Magnitude;
         double   vHyperPeri = Math.Sqrt(vInf * vInf + 2.0 * muBody / rPeri - 2.0 * muBody / rSoi);
 
-        // Insertion: no inclination term (matches LWP insertionToCircularDeltaV).
-        if (!isEjection)
-            return Math.Abs(vHyperPeri - vPark);
+        // ---- Precise periapsis burn UT via hyperbolic transit time ----
+        // |a| = μ/v∞²,  e_hyp = 1 + r_peri/|a|
+        // F_SOI = acosh((r_SOI/|a| + 1) / e_hyp)
+        // t_transit = √(|a|³/μ) · (e_hyp·sinh(F_SOI) − F_SOI)
+        // Ejection:  burn is before SOI exit  → burnUT = refUT − t_transit
+        // Insertion: burn is after SOI entry  → burnUT = refUT + t_transit
+        double burnUT;
+        if (vInf < 1e-9)
+        {
+            burnUT = refUT; // degenerate: no meaningful hyperbolic arc
+        }
+        else
+        {
+            double sma     = muBody / (vInf * vInf);
+            double eHyp    = 1.0 + rPeri / sma;
+            double cosHF   = (rSoi / sma + 1.0) / eHyp;
+            double hfSoi   = Math.Acosh(cosHF);
+            double transit = Math.Sqrt(sma * sma * sma / muBody) * (eHyp * Math.Sinh(hfSoi) - hfSoi);
+            burnUT = isEjection ? refUT - transit : refUT + transit;
+        }
 
-        // Ejection: no inclination correction when v∞z is negligible.
-        if (Math.Abs(vInfVec.Z) < 1e-9 || vInf < 1e-9)
-            return Math.Abs(vHyperPeri - vPark);
+        // ---- Ejection: combined speed-up + plane-change at periapsis ----
+        if (isEjection)
+        {
+            if (Math.Abs(vInfVec.Z) < 1e-9 || vInf < 1e-9)
+            {
+                double dv0 = vHyperPeri - vPark;
+                return (Math.Abs(dv0), new BurnVector(dv0, 0.0, 0.0), burnUT);
+            }
 
-        // Effective ejection inclination = angle between departure asymptote
-        // and ecliptic, reduced by the parking orbit's own inclination.
-        // An inclined parking orbit can absorb up to i_park of the plane change
-        // for free by timing the ejection burn optimally.
-        double alpha  = Math.Asin(Math.Clamp(vInfVec.Z / vInf, -1.0, 1.0));
-        double deltaI = Math.Max(0.0, Math.Abs(alpha) - parkingOrbit.Inclination);
+            double alpha  = Math.Asin(Math.Clamp(vInfVec.Z / vInf, -1.0, 1.0));
+            double deltaI = Math.Max(0.0, Math.Abs(alpha) - parkingOrbit.Inclination);
 
-        if (deltaI < 1e-9)
-            return Math.Abs(vHyperPeri - vPark);
+            if (deltaI < 1e-9)
+            {
+                double dv0 = vHyperPeri - vPark;
+                return (Math.Abs(dv0), new BurnVector(dv0, 0.0, 0.0), burnUT);
+            }
 
-        // Combined ejection + plane-change via law of cosines.
-        return Math.Sqrt(vPark * vPark + vHyperPeri * vHyperPeri
-                         - 2.0 * vPark * vHyperPeri * Math.Cos(deltaI));
+            double proEj = vHyperPeri * Math.Cos(deltaI) - vPark;
+            double norEj = vHyperPeri * Math.Sin(deltaI) * (double)Math.Sign(alpha);
+            double dvEj  = Math.Sqrt(proEj * proEj + norEj * norEj);
+            return (dvEj, new BurnVector(proEj, norEj, 0.0), burnUT);
+        }
+
+        // ---- Insertion: deceleration + optional plane-change into destination orbit ----
+        // i_dest = 0 → pure deceleration ("capture into natural arrival plane").
+        double iDest = parkingOrbit.Inclination;
+        if (iDest < 1e-9 || Math.Abs(vInfVec.Z) < 1e-9 || vInf < 1e-9)
+        {
+            double dv0 = vPark - vHyperPeri; // negative = retrograde
+            return (Math.Abs(dv0), new BurnVector(dv0, 0.0, 0.0), burnUT);
+        }
+
+        double alphaArr  = Math.Asin(Math.Clamp(vInfVec.Z / vInf, -1.0, 1.0));
+        double deltaIArr = Math.Max(0.0, Math.Abs(alphaArr) - iDest);
+
+        if (deltaIArr < 1e-9)
+        {
+            double dv0 = vPark - vHyperPeri;
+            return (Math.Abs(dv0), new BurnVector(dv0, 0.0, 0.0), burnUT);
+        }
+
+        double proIns = vPark - vHyperPeri * Math.Cos(deltaIArr);
+        double norIns = -vHyperPeri * Math.Sin(deltaIArr) * (double)Math.Sign(alphaArr);
+        double dvIns  = Math.Sqrt(proIns * proIns + norIns * norIns);
+        return (dvIns, new BurnVector(proIns, norIns, 0.0), burnUT);
     }
 }

@@ -13,6 +13,12 @@ export interface TransferRequest {
   destinationEccentricity?: number; // default 0
 }
 
+export interface BurnVectorDto {
+  prograde: number;
+  normal: number;
+  radial: number;
+}
+
 export interface TransferResponse {
   departureUT: number;
   departureDate: string;
@@ -21,6 +27,12 @@ export interface TransferResponse {
   ejectionDeltaV: number;
   insertionDeltaV: number;
   totalDeltaV: number;
+  ejectionBurnUT: number;
+  ejectionBurnDate: string;
+  ejectionBurnVector: BurnVectorDto;
+  insertionBurnUT: number;
+  insertionBurnDate: string;
+  insertionBurnVector: BurnVectorDto;
 }
 
 export interface BodySummary {
