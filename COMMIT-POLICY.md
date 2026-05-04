@@ -96,6 +96,13 @@ gh pr create `
 
 PR title must follow the same Conventional Commit format as the commit summary line.
 
+**Adding changes to an open PR:**
+
+Push new commits — do not amend or force-push onto a branch with an open PR.
+Each follow-up change (fixes, review feedback, additions) must be a fresh commit on the
+same branch. Commits will be squashed on merge, so the on-branch history does not need to
+be clean.
+
 **Merge policy:**
 - PRs require **1 approving review** (the repository owner) before merge
 - An agent may open and push to a PR without approval
@@ -127,9 +134,12 @@ Never bypass hooks with `--no-verify`.
 
 ### Step 2 — Documentation alignment
 
-Review the staged diff and update any `AGENTS.md` files whose described responsibilities,
-key files, or dependencies changed. No other documentation updates are required unless
-the staged diff directly affects them.
+Review the staged diff and update any of the following documents if their described
+responsibilities, key files, or dependencies changed:
+
+- **`AGENTS.md`** files — architecture, file descriptions, conventions for the affected area
+- **`README.md`** — credits/inspirations table when a new external reference is introduced;
+  developer setup section when tooling or scripts change
 
 ---
 

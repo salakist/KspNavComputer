@@ -1,0 +1,74 @@
+﻿[
+  {
+    "source": "alexmoon/ksp LWP (javascripts/, ballistic, no plane change)",
+    "origin": "Kerbin",
+    "destination": "Duna",
+    "departureUT": 5091600,
+    "timeOfFlight": 5184000,
+    "parkingOrbitAltitude": 100000,
+    "destinationOrbitAltitude": 100000,
+    "ejectionDeltaV": 1041.103524718279,
+    "insertionDeltaV": 680.3076926832185,
+    "totalDeltaV": 1721.4112174014977
+  },
+  {
+    "source": "alexmoon/ksp LWP (javascripts/, ballistic, no plane change)",
+    "origin": "Kerbin",
+    "destination": "Jool",
+    "departureUT": 12960000,
+    "timeOfFlight": 20736000,
+    "parkingOrbitAltitude": 100000,
+    "destinationOrbitAltitude": 100000,
+    "ejectionDeltaV": 3013.5572085643216,
+    "insertionDeltaV": 3000.924801006765,
+    "totalDeltaV": 6014.482009571087
+  },
+  {
+    "source": "alexmoon/ksp LWP (javascripts/, ballistic, no plane change)",
+    "origin": "Kerbin",
+    "destination": "Dres",
+    "departureUT": 40000000,
+    "timeOfFlight": 10000000,
+    "parkingOrbitAltitude": 100000,
+    "destinationOrbitAltitude": 100000,
+    "ejectionDeltaV": 5755.177746317045,
+    "insertionDeltaV": 2824.349835876079,
+    "totalDeltaV": 8579.527582193125
+  },
+  {
+    "source": "alexmoon/ksp LWP (javascripts/, ballistic, no plane change)",
+    "origin": "Kerbin",
+    "destination": "Eeloo",
+    "departureUT": 20000000,
+    "timeOfFlight": 40000000,
+    "parkingOrbitAltitude": 100000,
+    "destinationOrbitAltitude": 100000,
+    "ejectionDeltaV": 13289.741334230495,
+    "insertionDeltaV": 3814.1508073369832,
+    "totalDeltaV": 17103.892141567478
+  },
+  {
+    "source": "alexmoon/ksp LWP (javascripts/, ballistic, no plane change)",
+    "origin": "Kerbin",
+    "destination": "Eve",
+    "departureUT": 3000000,
+    "timeOfFlight": 4320000,
+    "parkingOrbitAltitude": 100000,
+    "destinationOrbitAltitude": 100000,
+    "ejectionDeltaV": 7177.098084182205,
+    "insertionDeltaV": 10686.943492520933,
+    "totalDeltaV": 17864.041576703137
+  },
+  {
+    "source": "alexmoon/ksp LWP (javascripts/, ballistic, no plane change)",
+    "origin": "Kerbin",
+    "destination": "Moho",
+    "departureUT": 1800000,
+    "timeOfFlight": 3456000,
+    "parkingOrbitAltitude": 100000,
+    "destinationOrbitAltitude": 100000,
+    "ejectionDeltaV": 3665.685792486894,
+    "insertionDeltaV": 5573.219935583993,
+    "totalDeltaV": 9238.905728070888
+  }
+]

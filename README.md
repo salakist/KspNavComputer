@@ -60,3 +60,17 @@ Tokens expire after 60 minutes. Regenerate if a `gh` call returns an auth error.
 ### Commit and PR policy
 
 See [`COMMIT-POLICY.md`](COMMIT-POLICY.md).
+
+---
+
+## Credits and inspirations
+
+| Reference | Used for |
+|-----------|----------|
+| [Transfer Window Planner](https://github.com/TriggerAu/TransferWindowPlanner) (TriggerAu) | Cross-reference for the Sun/Gooding (1979) Lambert solver and short-way/long-way arc selection; inspiration for porkchop-plot visualisation (Increment 3) |
+| [Launch Window Planner](https://alexmoon.github.io/ksp/) (alexmoon) | Primary reference implementation for the Sun/Gooding (1979) Lambert solver (multi-revolution support, arc selection, `circularToEscapeDeltaV` / `insertionToCircularDeltaV` formulas); validation oracle for all reference transfer test cases; inspiration for overall mission-planning UX |
+| Sun — *"On the Minimum Time Trajectory and Multiple Solutions of Lambert's Problem"* (AAS 79-164, 1979) | Lambert solver algorithm implemented in `LambertSolver.cs` (multi-revolution, arc selection via `angleParameter`) |
+| [KSP Wiki — Celestial bodies](https://wiki.kerbalspaceprogram.com/wiki/Category:Celestial_bodies) | Gravitational parameters, radii, SOI radii, and orbital elements for all stock bodies |
+| [Precise Maneuver mod](https://github.com/hxtk/KSP-Precise-Maneuver) | Target format for maneuver-node copy-paste export (Increment 2) |
+| [Outer Planets Mod](https://github.com/Kopernicus/Outer-Planets-Mod) | Body data for OPM bodies (Increment 4) |
+| [Minor Planets Expansion](https://github.com/ProximaCentauri-star/MinorPlanetsExpansion) | Body data for MPE bodies (Increment 4) |
