@@ -14,6 +14,7 @@ It is tracked in git (unlike `local-docs/`, which is gitignored).
 | [`body-data-schema.md`](body-data-schema.md) | CelestialBody and OrbitalElements field reference; body inventory |
 | [`algorithms/lambert.md`](algorithms/lambert.md) | Lambert solver: normalised variables, arc selection, multi-revolution, velocity reconstruction |
 | [`algorithms/delta-v.md`](algorithms/delta-v.md) | Transfer Δv pipeline: Kepler propagation, Lambert, maneuver calculation, burn UT |
+| [`algorithms/porkchop.md`](algorithms/porkchop.md) | Transfer types (ballistic/plane-change/optimal) and porkchop grid algorithm |
 | [`planning/overview.md`](planning/overview.md) | Problem statement, architecture decisions, design principles, licensing |
 | [`planning/roadmap.md`](planning/roadmap.md) | Increment status table and one-line description of each increment |
 | `planning/increments/increment-N.md` | Plan + actuals for each increment (see below) |
@@ -62,5 +63,6 @@ Plan sections are written once and never edited. Actuals sections are written on
 |-----------------|---------------|
 | `LambertSolver.cs`, `KeplerSolver.cs` | [`algorithms/lambert.md`](algorithms/lambert.md) |
 | `ManeuverCalculator.cs`, `TransferComputer.cs` | [`algorithms/delta-v.md`](algorithms/delta-v.md) |
+| `PlaneChangeComputer.cs`, `PorkchopComputer.cs`, `TransferType.cs` | [`algorithms/porkchop.md`](algorithms/porkchop.md) |
 | `CelestialBody.cs`, `OrbitalElements.cs`, `BodyDatabase.cs` | [`body-data-schema.md`](body-data-schema.md) |
 | Commit/PR workflow changes | [`commit-policy.md`](commit-policy.md) |

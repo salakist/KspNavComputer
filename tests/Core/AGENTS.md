@@ -16,6 +16,7 @@ xUnit test project for `KspNavComputer.Core`.
 | `ReferenceRoundTripTests.cs` | Theory tests comparing `ComputeRoundTrip` output against LWP oracle for 2 round-trip cases; all 7 Δv fields within ±1%; ejection angle and inclination within ±0.5° for both legs |
 | `InclinedEllipticalOrbitTests.cs` | 8 analytical tests for 1c: inclination monotonicity, eccentricity vis-viva reduction (e=0.3, e=0.5 for ejection and insertion), independence assertions |
 | `PreciseManeuverFormatterTests.cs` | 9 tests: KSP calendar formatting, UT line, ejection/insertion block structure, ejection angle lines (prograde/retrograde), line-ordering assertion |
+| `ReferencePorkchopTests.cs` | 9 theory tests (3 cases × 3 assertions) comparing `PorkchopComputer` against LWP: TOF range matches to <1 s; optimal cell Δv within 1.5%; grid minimum within 5% of LWP 300×300 fine optimal |
 
 ## Known limitations in tests
 

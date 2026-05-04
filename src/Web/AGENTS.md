@@ -11,13 +11,20 @@ at `http://localhost:5000` during development.
 src/Web/
 ├── src/
 │   ├── api/
-│   │   └── transferClient.ts   typed fetch wrappers for /api/transfer, /api/transfer/roundtrip, and /api/bodies
+│   │   └── transferClient.ts   typed fetch wrappers for /api/transfer, /api/transfer/roundtrip,
+│   │                           /api/bodies, and /api/porkchop
 │   ├── components/
-│   │   └── TransferForm.tsx    form + result panels; round-trip checkbox toggles extra fields and shows both legs
-│   ├── App.tsx                 root component — header + <TransferForm>
-│   ├── App.css                 minimal utility styles
-│   ├── index.css               global reset/base styles
-│   └── main.tsx                React entry point
+│   │   ├── PorkchopForm.tsx    origin/dest dropdowns, orbit inputs, departure date range,
+│   │   │                       transfer type selector, “Plot it!” button
+│   │   ├── PorkchopPlot.tsx    400×300 canvas heatmap; log-scale colour normalisation;
+│   │   │                       click handler; optimal cell marker; selected cell crosshair
+│   │   └── TransferDetails.tsx all burn output fields + PM copy buttons;
+│   │                           conditional plane-change section; CopyButton component
+│   ├── App.tsx             two-column layout: PorkchopForm left; PorkchopPlot + TransferDetails right;
+│   │                       auto-fetches optimal transfer on plot; click fetches selected cell
+│   ├── App.css             full layout CSS for two-column design
+│   ├── index.css           global reset/base styles
+│   └── main.tsx            React entry point
 ├── index.html
 ├── package.json
 ├── vite.config.ts
@@ -48,7 +55,10 @@ dotnet run       # starts on http://localhost:5000
 - Altitude inputs are in km in the UI; multiplied by 1 000 before sending to API.
 - Inclination inputs are in degrees in the UI; the API converts to radians internally.
 - Eccentricity inputs are dimensionless (0 = circular).
-- No global state management library — React `useState`/`useEffect` only for 1a.
-- `TransferResultPanel` shows ejection angle and inclination rows (from `ejectionDetails`)
-  when available; `formatEjectionAngle(angleDeg)` formats e.g. `"113.73° to retrograde"`.
+- No global state management library — React `useState`/`useEffect` only.
+- `TransferDetails` shows ejection angle/inclination from `ejectionDetails` when available;
+  `formatEjectionAngle(angleDeg)` formats e.g. `"113.73° to retrograde"`.
 - Copy-to-clipboard buttons use `preciseManeuverText` from `BurnDto`.
+- Porkchop colour map: log-scale, blue→cyan→green→red; normalised to [minLog, meanLog + 2σ];
+  Y-axis flipped on canvas (row 0 drawn at bottom = minTof).
+- `gridCols`/`gridRows` default to 100 in `PorkchopRequest`; sent explicitly from the form.

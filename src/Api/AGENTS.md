@@ -12,6 +12,7 @@ Runs on `http://localhost:5000` during development.
 | POST   | /api/transfer           | Compute one-way interplanetary transfer    |
 | POST   | /api/transfer/roundtrip | Compute round-trip interplanetary transfer |
 | GET    | /api/bodies             | List all bodies that orbit a parent body   |
+| POST   | /api/porkchop           | Compute porkchop Δv grid (rows×cols)       |
 
 ### POST /api/transfer
 
@@ -57,15 +58,28 @@ Response (JSON):
     "preciseManeuverText": "Precise Maneuver Information\nDepart at: ...",
     "ejectionDetails": null
   },
-  "totalDeltaV": 1570.5
+  "totalDeltaV": 1570.5,
+  "transferType": "Ballistic",
+  "phaseAngleDeg": 35.2,
+  "transferAngleDeg": 178.3,
+  "transferPeriapsis": 13_599_840_256,
+  "transferApoapsis": 20_726_155_264,
+  "insertionInclinationDeg": 0.9,
+  "planeChange": null
 }
 ```
 
-`ejectionDetails` is non-null only on the ejection burn and only when the geometry is
-non-degenerate. `angleDeg` is signed: positive = to prograde, negative = to retrograde.
-`preciseManeuverText` is always present on both burns.
+`planeChange` is non-null only when a mid-course plane-change burn was computed and selected.
+It has the same shape as a `BurnDto` but without `ejectionDetails` or `preciseManeuverText`.
 
-Error responses: 400 Bad Request with plain-text message.
+Additional request fields (all optional, default shown):
+```json
+{
+  "transferType": "Optimal",
+  "noInsertionBurn": false
+}
+```
+`transferType` accepts `"Ballistic"`, `"MidCoursePlaneChange"`, or `"Optimal"` (default).
 
 ### POST /api/transfer/roundtrip
 
@@ -95,6 +109,44 @@ plus `totalDeltaV` (sum of both legs).
 
 Error responses: 400 Bad Request with plain-text message.
 
+### POST /api/porkchop
+
+Request (JSON):
+```json
+{
+  "origin": "Kerbin",
+  "destination": "Duna",
+  "earliestDeparture": 22705200,
+  "latestDeparture": 34068600,
+  "originAltitude": 80000,
+  "destinationAltitude": 60000,
+  "transferType": "Ballistic",
+  "gridCols": 100,
+  "gridRows": 100
+}
+```
+
+`transferType`, `gridCols`, `gridRows`, `originAltitude`, `destinationAltitude` are optional.
+`destinationAltitude` = 0 (omitted) → fly-by / no insertion burn.
+
+Response (JSON):
+```json
+{
+  "deltaVs": [1234.5, ...],
+  "rows": 100, "cols": 100,
+  "earliestDeparture": 22705200, "latestDeparture": 34068600,
+  "minTof": 3262001, "maxTof": 9786004,
+  "minDeltaV": 1677.7, "maxDeltaV": 18540.0,
+  "meanLogDeltaV": 7.88, "stdLogDeltaV": 0.42,
+  "optimalRow": 14, "optimalCol": 8
+}
+```
+
+`deltaVs` is a flat row-major array (row 0 = minTof, col 0 = earliestDeparture).
+Failed cells (degenerate Lambert geometry) are `null` in JSON (NaN in C#).
+
+---
+
 ### GET /api/bodies
 
 Returns array of `{ name, parent, radius }` objects, ordered by name,
@@ -105,14 +157,20 @@ excluding Kerbol itself.
 ```
 src/Api/
 ├── Dtos/
-│   ├── TransferDtos.cs      — TransferRequest, BurnVectorDto, BurnDto, TransferResponse records
+│   ├── TransferDtos.cs      — TransferRequest (+ transferType, noInsertionBurn),
+│   │                           BurnVectorDto, PlaneChangeBurnDto, BurnDto, TransferResponse
+│   │                           (+ planeChange, phaseAngleDeg, transferAngleDeg,
+│   │                              transferPeriapsis, transferApoapsis, insertionInclinationDeg)
 │   ├── RoundTripDtos.cs     — RoundTripRequest, RoundTripResponse records
-│   └── BodyDtos.cs          — BodySummary record
+│   ├── BodyDtos.cs          — BodySummary record
+│   └── PorkchopDtos.cs      — PorkchopRequest, PorkchopResponse records
 ├── Endpoints/
 │   ├── TransferEndpoints.cs — Map() registers /api/transfer and /api/transfer/roundtrip
-│   └── BodiesEndpoints.cs   — Map() registers /api/bodies
+│   ├── BodiesEndpoints.cs   — Map() registers /api/bodies
+│   └── PorkchopEndpoints.cs — Map() registers /api/porkchop
 ├── Mappers/
-│   └── TransferMapper.cs    — ToResponse(TransferResult), ToBurnDto(Burn)
+└──   TransferMapper.cs    — ToResponse(TransferResult), ToBurnDto(Burn), ParseTransferType,
+                                 ToPlaneChangeBurnDto(PlaneChangeBurn)
 └── Program.cs               — bootstrap only: CORS + Map() calls + app.Run()
 ```
 

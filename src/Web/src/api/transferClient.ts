@@ -11,6 +11,8 @@ export interface TransferRequest {
   destinationInclination?: number;  // degrees, default 0
   originEccentricity?: number;      // default 0
   destinationEccentricity?: number; // default 0
+  transferType?: string;            // "Ballistic" | "MidCoursePlaneChange" | "Optimal"
+  noInsertionBurn?: boolean;
 }
 
 export interface BurnVectorDto {
@@ -22,6 +24,14 @@ export interface BurnVectorDto {
 export interface EjectionDetailsDto {
   angleDeg: number;
   inclinationDeg: number;
+}
+
+export interface PlaneChangeBurnDto {
+  deltaV: number;
+  burnUT: number;
+  burnDate: string;
+  vector: BurnVectorDto;
+  preciseManeuverText: string;
 }
 
 export interface BurnDto {
@@ -41,6 +51,12 @@ export interface TransferResponse {
   ejection: BurnDto;
   insertion: BurnDto;
   totalDeltaV: number;
+  planeChange: PlaneChangeBurnDto | null;
+  phaseAngleDeg: number;
+  transferAngleDeg: number;
+  transferPeriapsis: number;   // [m] from central body
+  transferApoapsis: number;    // [m] from central body
+  insertionInclinationDeg: number;
 }
 
 export interface BodySummary {
@@ -49,23 +65,37 @@ export interface BodySummary {
   radius: number;
 }
 
-export async function fetchBodies(): Promise<BodySummary[]> {
-  const res = await fetch(`${API_BASE}/api/bodies`);
-  if (!res.ok) throw new Error(`Failed to fetch bodies: ${res.statusText}`);
-  return res.json();
+export interface PorkchopRequest {
+  origin: string;
+  destination: string;
+  originAltitude: number;
+  destinationAltitude: number;
+  earliestDeparture: number;  // [s UT]
+  latestDeparture: number;    // [s UT]
+  originInclination?: number;
+  destinationInclination?: number;
+  originEccentricity?: number;
+  destinationEccentricity?: number;
+  noInsertionBurn?: boolean;
+  transferType?: string;
+  gridCols?: number;
+  gridRows?: number;
 }
 
-export async function computeTransfer(req: TransferRequest): Promise<TransferResponse> {
-  const res = await fetch(`${API_BASE}/api/transfer`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(req),
-  });
-  if (!res.ok) {
-    const msg = await res.text();
-    throw new Error(msg || res.statusText);
-  }
-  return res.json();
+export interface PorkchopResponse {
+  deltaVs: number[];         // flat row-major [rows × cols], NaN for failed cells
+  rows: number;
+  cols: number;
+  earliestDeparture: number; // [s UT]
+  latestDeparture: number;   // [s UT]
+  minTof: number;            // [s]
+  maxTof: number;            // [s]
+  minDeltaV: number;
+  maxDeltaV: number;
+  meanLogDeltaV: number;
+  stdLogDeltaV: number;
+  optimalRow: number;
+  optimalCol: number;
 }
 
 export interface RoundTripRequest {
@@ -89,6 +119,38 @@ export interface RoundTripResponse {
   totalDeltaV: number;
 }
 
+export async function fetchBodies(): Promise<BodySummary[]> {
+  const res = await fetch(`${API_BASE}/api/bodies`);
+  if (!res.ok) throw new Error(`Failed to fetch bodies: ${res.statusText}`);
+  return res.json();
+}
+
+export async function computeTransfer(req: TransferRequest): Promise<TransferResponse> {
+  const res = await fetch(`${API_BASE}/api/transfer`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(req),
+  });
+  if (!res.ok) {
+    const msg = await res.text();
+    throw new Error(msg || res.statusText);
+  }
+  return res.json();
+}
+
+export async function computePorkchop(req: PorkchopRequest): Promise<PorkchopResponse> {
+  const res = await fetch(`${API_BASE}/api/porkchop`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(req),
+  });
+  if (!res.ok) {
+    const msg = await res.text();
+    throw new Error(msg || res.statusText);
+  }
+  return res.json();
+}
+
 export async function computeRoundTrip(req: RoundTripRequest): Promise<RoundTripResponse> {
   const res = await fetch(`${API_BASE}/api/transfer/roundtrip`, {
     method: 'POST',
@@ -101,3 +163,4 @@ export async function computeRoundTrip(req: RoundTripRequest): Promise<RoundTrip
   }
   return res.json();
 }
+

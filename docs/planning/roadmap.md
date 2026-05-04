@@ -13,7 +13,8 @@
 | 1b | Round trip | complete |
 | 1c | Inclined / elliptical parking orbits + burn vectors | complete |
 | 2  | Precise Maneuver export | complete |
-| 3  | Transfer window porkchop plot | not started |
+| 3  | Transfer window porkchop plot | complete |
+| 3a | Transfer accuracy: 300×300 grid + SOI-exit correction | not started |
 | 4  | OPM + MPE body support | not started |
 | 5  | KSP save file import | not started |
 | 6  | Landed start support | not started |
@@ -41,6 +42,7 @@
 | **1c** | Inclined/elliptical parking orbits; ejection + insertion burn vectors (prograde/normal/radial); precise periapsis burn UT |
 | **2** | Precise Maneuver export: format burns as Precise Maneuver plaintext block (including ejection angle + inclination); one-click copy-to-clipboard per burn; ejection geometry computed from hyperbola equations (LWP algorithm) |
 | **3** | Porkchop plot: Δv / TOF grid over departure date range; click to populate burn details |
+| **3a** | Transfer accuracy: 300×300 porkchop grid (matches LWP resolution); SOI-exit correction (`refineTransfer`) to fix KSP encounter alignment |
 | **4** | Parse Kopernicus `.cfg` files from local GameData to add OPM + MPE bodies |
 | **5** | Parse `.sfs` save files; vessel selection dropdown pre-fills departure parameters |
 | **6** | Δv budget from surface launch to parking orbit (gravity + drag losses) integrated into transfer plan |
