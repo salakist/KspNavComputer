@@ -34,39 +34,24 @@ src/Core/
 
 ## Algorithm references
 
-- Kepler solver: Newton-Raphson on M = E − e·sin(E); tolerance 1e-10.
-- Lambert solver: Sun (1979) / Gooding formulation with Brent's method root-finding.
-  - N=0 (zero-rev): Brent tolerance 1e-6.
-  - N≥1 (multi-rev): Brent tolerance 1e-4; two roots exist per N, both candidates evaluated.
-  - Arc selection: `angleParameter = ±sqrt(n/m)`; negative for long-way (transfer angle > π).
-  - `FdtE(x, N)` time-of-flight equation includes `N·π` term for multi-revolution orbits.
-  - `TransferComputer` solves for both prograde and retrograde and picks the cheapest total Δv.
-  - **Known limitation**: the 180° (anti-podal) geometry (transfer angle = π) is a degenerate
-    case where the orbit plane is undefined. Do not pass exactly-opposite position vectors.
-- Perifocal → inertial rotation: standard 3-1-3 Euler sequence R_z(-Ω)·R_x(-i)·R_z(-ω).
-- Parking orbit speed at periapsis: `v_park = sqrt(μ·(1+e)/r_peri)`.  For circular
-  orbits (e=0) this equals `v_circ`.  Burn is always executed at periapsis.
-- Ejection Δv + burn vector: `ManeuverCalculator` decomposes into prograde/normal components
-  using law-of-cosines plane change with effective angle
-  `deltaI = max(0, |alpha| − i_park)`, where `alpha = asin(v∞_z / |v∞|)` and `i_park`
-  is the parking orbit inclination.
-  `prograde = v_hyper·cos(deltaI) − v_park`,  `normal = v_hyper·sin(deltaI)·sign(alpha)`,
-  `v_hyper = sqrt(v∞² + 2μ/r_peri − 2μ/r_SOI)`.
-  Collapses to pure prograde `|v_hyper − v_park|` when deltaI = 0.
-- Insertion Δv + burn vector: symmetric law-of-cosines when `i_dest > 0`:
-  `deltaI_arr = max(0, |alpha_arr| − i_dest)`.
-  `prograde = v_park − v_hyper·cos(deltaI_arr)`,  `normal = −v_hyper·sin(deltaI_arr)·sign(alpha_arr)`.
-  When `i_dest = 0` (default): pure deceleration `v_park − v_hyper` (backward compatible,
-  matches LWP `insertionToCircularDeltaV`).
-- Precise periapsis burn UT: `|a| = μ/v∞²`, `e_hyp = 1 + r_peri/|a|`,
-  `F = acosh((r_SOI/|a| + 1) / e_hyp)`, `t = sqrt(|a|³/μ)·(e_hyp·sinh(F) − F)`.
-  Ejection: `burnUT = departureUT − t`.  Insertion: `burnUT = arrivalUT + t`.
+Full algorithm documentation lives in `docs/algorithms/`:
+- [`docs/algorithms/lambert.md`](../../docs/algorithms/lambert.md) — Lambert solver (Sun/Gooding 1979, arc selection, multi-revolution, velocity reconstruction)
+- [`docs/algorithms/delta-v.md`](../../docs/algorithms/delta-v.md) — Δv pipeline (Kepler propagation, ManeuverCalculator formulas, precise burn UT)
+
+Key implementation notes for agents touching these files:
+- Kepler solver tolerance: `1e-10`.
+- Lambert `TransferComputer` enumerates both prograde and retrograde, picks minimum total Δv.
+- **Known limitation**: 180° (anti-podal) geometry is degenerate — do not pass exactly-opposite position vectors.
+- Update `docs/algorithms/` when changing any of these files: `LambertSolver.cs`, `KeplerSolver.cs`, `ManeuverCalculator.cs`, `TransferComputer.cs`.
 
 ## Body data
 
-- All 17 stock bodies hardcoded from KSP wiki values (community-verified).
-- Moons hold a reference to their parent body; Kerbol parent is null.
+See [`docs/body-data-schema.md`](../../docs/body-data-schema.md) for the full field reference and body inventory.
+
+- All 17 stock bodies hardcoded in `BodyDatabase.cs` from KSP wiki values (community-verified).
+- Moons hold a reference to their parent body; Kerbol parent is `null`.
 - OPM / MPE body support deferred to Increment 4.
+- Update `docs/body-data-schema.md` when changing `CelestialBody.cs`, `OrbitalElements.cs`, or `BodyDatabase.cs`.
 
 ## Units (always SI internally)
 

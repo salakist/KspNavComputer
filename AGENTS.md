@@ -82,21 +82,9 @@ cd src/Web ; npm run build
 
 ## Increment status
 
-| Increment | Description | Status |
-|-----------|-------------|--------|
-| 1a | Scaffold + one-way circular transfer | complete |
-| 1b | Round trip | complete |
-| 1c | Inclined / elliptical parking orbits | complete |
-| 2  | Precise Maneuver export | not started |
-| 3  | Transfer window porkchop plot | not started |
-| 4  | OPM + MPE body support | not started |
-| 5  | KSP save file import | not started |
-| 6  | Landed start support | not started |
-| 7  | Integrated delta-V map | not started |
-| 8  | Sub-system transfers | not started |
-| 9  | In-game mod | not started |
+See [`docs/planning/roadmap.md`](docs/planning/roadmap.md) for the full increment status table and one-line descriptions.
 
-Full increment descriptions: [`local-docs/planning.md`](local-docs/planning.md)
+Current state: increments 1a, 1b, 1c complete. Increments 2–9 not started.
 
 ---
 
@@ -117,6 +105,19 @@ Each sub-folder `AGENTS.md` is created when that folder is first scaffolded.
 
 - **Commit and PR policy**: [`docs/commit-policy.md`](docs/commit-policy.md)
 - **Contributor setup**: [`README.md`](README.md)
-- **Planning and increments**: [`local-docs/planning.md`](local-docs/planning.md) (gitignored)
+- **Planning and increments**: [`docs/planning/roadmap.md`](docs/planning/roadmap.md) (tracked); [`local-docs/planning.md`](local-docs/planning.md) (gitignored, richer actuals)
+- **Design docs**: [`docs/AGENTS.md`](docs/AGENTS.md) — full file map of all tracked docs
 - **Branch naming**: Conventional Branch format — `<type>/<description>`
 - **No direct push to `main`**: all changes via pull request, owner approval required
+
+## Documentation maintenance policy
+
+When making code changes, update the corresponding `docs/` file **in the same commit**:
+
+| Changed file(s) | Update this doc |
+|-----------------|----------------|
+| `LambertSolver.cs`, `KeplerSolver.cs` | [`docs/algorithms/lambert.md`](docs/algorithms/lambert.md) |
+| `ManeuverCalculator.cs`, `TransferComputer.cs` | [`docs/algorithms/delta-v.md`](docs/algorithms/delta-v.md) |
+| `CelestialBody.cs`, `OrbitalElements.cs`, `BodyDatabase.cs` | [`docs/body-data-schema.md`](docs/body-data-schema.md) |
+| Commit/PR workflow changes | [`docs/commit-policy.md`](docs/commit-policy.md) |
+| Increment scoped or delivered | [`docs/planning/roadmap.md`](docs/planning/roadmap.md) + relevant `increment-N.md` |
