@@ -67,6 +67,62 @@ app.MapGet("/api/bodies", () =>
         .ToArray()
 );
 
+// ---- POST /api/transfer/roundtrip ----
+app.MapPost("/api/transfer/roundtrip", (RoundTripRequest req) =>
+{
+    if (!BodyDatabase.All.TryGetValue(req.Origin,      out var origin))
+        return Results.BadRequest($"Unknown body: '{req.Origin}'.");
+    if (!BodyDatabase.All.TryGetValue(req.Destination, out var destination))
+        return Results.BadRequest($"Unknown body: '{req.Destination}'.");
+
+    var parameters = new RoundTripParameters(
+        Origin:                 origin,
+        Destination:            destination,
+        DepartureUT:            req.DepartureUT,
+        OutboundTimeOfFlight:   req.OutboundTimeOfFlight,
+        StayDuration:           req.StayDuration,
+        ReturnTimeOfFlight:     req.ReturnTimeOfFlight,
+        OriginOrbit:            new ParkingOrbit(req.OriginAltitude),
+        DestinationOrbit:       new ParkingOrbit(req.DestinationAltitude)
+    );
+
+    RoundTripResult result;
+    try
+    {
+        result = TransferComputer.ComputeRoundTrip(parameters);
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(ex.Message);
+    }
+    catch (InvalidOperationException ex)
+    {
+        return Results.BadRequest(ex.Message);
+    }
+
+    return Results.Ok(new RoundTripResponse(
+        Outbound: new TransferResponse(
+            DepartureUT:     result.Outbound.DepartureUT,
+            DepartureDate:   KspTime.Format(result.Outbound.DepartureUT),
+            ArrivalUT:       result.Outbound.ArrivalUT,
+            ArrivalDate:     KspTime.Format(result.Outbound.ArrivalUT),
+            EjectionDeltaV:  result.Outbound.EjectionDeltaV,
+            InsertionDeltaV: result.Outbound.InsertionDeltaV,
+            TotalDeltaV:     result.Outbound.TotalDeltaV
+        ),
+        Return: new TransferResponse(
+            DepartureUT:     result.Return.DepartureUT,
+            DepartureDate:   KspTime.Format(result.Return.DepartureUT),
+            ArrivalUT:       result.Return.ArrivalUT,
+            ArrivalDate:     KspTime.Format(result.Return.ArrivalUT),
+            EjectionDeltaV:  result.Return.EjectionDeltaV,
+            InsertionDeltaV: result.Return.InsertionDeltaV,
+            TotalDeltaV:     result.Return.TotalDeltaV
+        ),
+        TotalDeltaV: result.TotalDeltaV
+    ));
+});
+
 app.Run();
 
 // ---- DTOs ----
@@ -90,3 +146,20 @@ record TransferResponse(
 );
 
 record BodySummary(string Name, string Parent, double Radius);
+
+record RoundTripRequest(
+    string Origin,
+    string Destination,
+    double DepartureUT,
+    double OutboundTimeOfFlight,
+    double StayDuration,
+    double ReturnTimeOfFlight,
+    double OriginAltitude,
+    double DestinationAltitude
+);
+
+record RoundTripResponse(
+    TransferResponse Outbound,
+    TransferResponse Return,
+    double TotalDeltaV
+);

@@ -33,6 +33,9 @@ public static class TransferComputer
                 "Origin and Destination must both orbit the same parent body.");
         }
 
+        if (ReferenceEquals(p.Origin, p.Destination))
+            throw new ArgumentException("Origin and Destination must be different bodies.");
+
         CelestialBody centralBody = p.Origin.Parent;
         double mu = centralBody.GravParam;
 
@@ -71,6 +74,44 @@ public static class TransferComputer
             EjectionDeltaV:   dvEject,
             InsertionDeltaV:  dvInsert,
             TotalDeltaV:      dvEject + dvInsert
+        );
+    }
+
+    /// <summary>
+    /// Computes the round-trip Δv budget: outbound leg then return leg.
+    ///
+    /// The return leg departs the destination at <c>arrivalUT + stayDuration</c>
+    /// and travels back to the origin.  Origin and destination parking orbits
+    /// are reused for both legs (the same orbit used for capture on arrival is
+    /// used as the departure orbit on the way home, and vice-versa).
+    /// </summary>
+    public static RoundTripResult ComputeRoundTrip(RoundTripParameters p)
+    {
+        var outboundParams = new TransferParameters(
+            Origin:           p.Origin,
+            Destination:      p.Destination,
+            DepartureUT:      p.DepartureUT,
+            TimeOfFlight:     p.OutboundTimeOfFlight,
+            OriginOrbit:      p.OriginOrbit,
+            DestinationOrbit: p.DestinationOrbit
+        );
+        var outbound = Compute(outboundParams);
+
+        double returnDeparture = outbound.ArrivalUT + p.StayDuration;
+        var returnParams = new TransferParameters(
+            Origin:           p.Destination,
+            Destination:      p.Origin,
+            DepartureUT:      returnDeparture,
+            TimeOfFlight:     p.ReturnTimeOfFlight,
+            OriginOrbit:      p.DestinationOrbit,
+            DestinationOrbit: p.OriginOrbit
+        );
+        var ret = Compute(returnParams);
+
+        return new RoundTripResult(
+            Outbound:   outbound,
+            Return:     ret,
+            TotalDeltaV: outbound.TotalDeltaV + ret.TotalDeltaV
         );
     }
 

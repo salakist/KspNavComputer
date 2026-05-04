@@ -43,3 +43,33 @@ export async function computeTransfer(req: TransferRequest): Promise<TransferRes
   }
   return res.json();
 }
+
+export interface RoundTripRequest {
+  origin: string;
+  destination: string;
+  departureUT: number;
+  outboundTimeOfFlight: number;
+  stayDuration: number;
+  returnTimeOfFlight: number;
+  originAltitude: number;
+  destinationAltitude: number;
+}
+
+export interface RoundTripResponse {
+  outbound: TransferResponse;
+  return: TransferResponse;
+  totalDeltaV: number;
+}
+
+export async function computeRoundTrip(req: RoundTripRequest): Promise<RoundTripResponse> {
+  const res = await fetch(`${API_BASE}/api/transfer/roundtrip`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(req),
+  });
+  if (!res.ok) {
+    const msg = await res.text();
+    throw new Error(msg || res.statusText);
+  }
+  return res.json();
+}

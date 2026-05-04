@@ -1,0 +1,40 @@
+[
+  {
+    "source": "alexmoon/ksp LWP (javascripts/, ballistic, no plane change)",
+    "description": "KerbinÔåÆDunaÔåÆKerbin",
+    "origin": "Kerbin",
+    "destination": "Duna",
+    "departureUT": 5091600,
+    "outboundTimeOfFlight": 5184000,
+    "stayDuration": 1944000,
+    "returnTimeOfFlight": 5400000,
+    "parkingOrbitAltitude": 100000,
+    "destinationOrbitAltitude": 100000,
+    "outboundEjectionDeltaV": 1041.103524718279,
+    "outboundInsertionDeltaV": 680.3076926832185,
+    "outboundTotalDeltaV": 1721.4112174014977,
+    "returnEjectionDeltaV": 2183.955671573027,
+    "returnInsertionDeltaV": 3861.2076492761826,
+    "returnTotalDeltaV": 6045.163320849209,
+    "totalDeltaV": 7766.574538250707
+  },
+  {
+    "source": "alexmoon/ksp LWP (javascripts/, ballistic, no plane change)",
+    "description": "KerbinÔåÆEveÔåÆKerbin",
+    "origin": "Kerbin",
+    "destination": "Eve",
+    "departureUT": 3000000,
+    "outboundTimeOfFlight": 4320000,
+    "stayDuration": 2592000,
+    "returnTimeOfFlight": 5400000,
+    "parkingOrbitAltitude": 100000,
+    "destinationOrbitAltitude": 100000,
+    "outboundEjectionDeltaV": 7177.098084182205,
+    "outboundInsertionDeltaV": 10686.943492520933,
+    "outboundTotalDeltaV": 17864.041576703137,
+    "returnEjectionDeltaV": 3101.987617726565,
+    "returnInsertionDeltaV": 2030.3313121259625,
+    "returnTotalDeltaV": 5132.318929852528,
+    "totalDeltaV": 22996.360506555666
+  }
+]
