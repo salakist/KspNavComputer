@@ -1,4 +1,4 @@
-namespace KspNavComputer.Core.Transfer;
+namespace KspNavComputer.Core.Maneuver;
 
 /// <summary>
 /// Describes the parking orbit at departure or arrival.

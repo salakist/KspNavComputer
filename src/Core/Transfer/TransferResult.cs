@@ -1,3 +1,5 @@
+using KspNavComputer.Core.Maneuver;
+
 namespace KspNavComputer.Core.Transfer;
 
 /// <summary>Result of a one-way transfer calculation.</summary>

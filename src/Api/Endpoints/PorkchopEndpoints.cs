@@ -1,6 +1,8 @@
 using KspNavComputer.Api.Dtos;
 using KspNavComputer.Api.Mappers;
 using KspNavComputer.Core.Bodies;
+using KspNavComputer.Core.Maneuver;
+using KspNavComputer.Core.Porkchop;
 using KspNavComputer.Core.Transfer;
 
 namespace KspNavComputer.Api.Endpoints;

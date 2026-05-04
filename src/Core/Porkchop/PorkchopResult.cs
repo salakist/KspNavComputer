@@ -1,4 +1,4 @@
-namespace KspNavComputer.Core.Transfer;
+namespace KspNavComputer.Core.Porkchop;
 
 /// <summary>
 /// Output of a porkchop grid computation.

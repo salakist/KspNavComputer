@@ -1,5 +1,7 @@
 using System.Text.Json;
 using KspNavComputer.Core.Bodies;
+using KspNavComputer.Core.Maneuver;
+using KspNavComputer.Core.Porkchop;
 using KspNavComputer.Core.Transfer;
 
 namespace KspNavComputer.Core.Tests;

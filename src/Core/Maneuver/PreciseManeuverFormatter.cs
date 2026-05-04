@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using KspNavComputer.Core.Time;
 
-namespace KspNavComputer.Core.Transfer;
+namespace KspNavComputer.Core.Maneuver;
 
 /// <summary>
 /// Formats a <see cref="Burn"/> as the Precise Maneuver mod plaintext block.

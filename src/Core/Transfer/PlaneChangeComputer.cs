@@ -1,4 +1,5 @@
 using KspNavComputer.Core.Mechanics;
+using KspNavComputer.Core.Maneuver;
 
 namespace KspNavComputer.Core.Transfer;
 
@@ -48,39 +49,35 @@ internal static class PlaneChangeComputer
     ///   - relative inclination is effectively zero (coplanar bodies), or
     ///   - Lambert solver fails for the rotated geometry.
     /// </summary>
-    public static PlaneChangeResult? Compute(
-        Vector3d r1, Vector3d v1Body,
-        Vector3d r2,
-        double tof, double t0, double mu)
+    public static PlaneChangeResult? Compute(PlaneChangeParameters p)
     {
-        var n0 = Vector3d.Cross(r1, v1Body).Normalize();
+        var n0 = Vector3d.Cross(p.R1, p.V1Body).Normalize();
 
         double relativeInclination = Math.Asin(
-            Math.Clamp(Vector3d.Dot(r2, n0) / r2.Magnitude, -1.0, 1.0));
-
+            Math.Clamp(Vector3d.Dot(p.R2, n0) / p.R2.Magnitude, -1.0, 1.0));
         if (Math.Abs(relativeInclination) < 1e-6)
             return null; // coplanar — no plane change useful
 
-        double transferAngle = ComputeTransferAngle(r1, r2);
+        double transferAngle = ComputeTransferAngle(p.R1, p.R2);
         if (transferAngle <= HalfPi)
             return null; // short transfer — plane change not beneficial
 
         // Search bounds: to lower orbit → [π/2, π]; to higher orbit → [0, π/2]
         double x1, x2;
-        if (r2.Magnitude < r1.Magnitude) { x1 = HalfPi; x2 = Math.PI; }
+        if (p.R2.Magnitude < p.R1.Magnitude) { x1 = HalfPi; x2 = Math.PI; }
         else                             { x1 = 0.0;    x2 = HalfPi;  }
 
         // ---- First approximation orbit ----
         // Rotate r2 by -relativeInclination around Cross(r2, n0) to flatten
         // it into the origin orbital plane.
-        var approxAxis = Vector3d.Cross(r2, n0).Normalize();
-        var r2Approx   = RotateByAxisAngle(r2, approxAxis, -relativeInclination);
+        var approxAxis = Vector3d.Cross(p.R2, n0).Normalize();
+        var r2Approx   = RotateByAxisAngle(p.R2, approxAxis, -relativeInclination);
 
         var lambert0 = LambertSolver.SolveAllRevolutions(
-            r1, r2Approx, tof, mu, maxRevs: 0, prograde: true);
+            p.R1, r2Approx, p.TimeOfFlight, p.Mu, maxRevs: 0, prograde: true);
         if (lambert0.Count == 0) return null;
 
-        var approxOrbit    = OrbitFromState(r1, lambert0[0].V1, mu, t0);
+        var approxOrbit    = OrbitFromState(p.R1, lambert0[0].V1, p.Mu, p.DepartureUT);
         double approxNuArr = TrueAnomalyAtPosition(approxOrbit, r2Approx);
 
         double xOpt = GoldenSectionSearch(x1, x2, 1e-2, x =>
@@ -93,15 +90,15 @@ internal static class PlaneChangeComputer
         // ---- Refinement: build a better orbit with the new axis ----
         double pcAngleRef = Math.Atan2(Math.Tan(relativeInclination), Math.Sin(xOpt));
         var    pcAxisRef  = RotateByAxisAngle(
-                                ProjectToPlane(r2, n0).Normalize(), n0, -xOpt);
+                                ProjectToPlane(p.R2, n0).Normalize(), n0, -xOpt);
         // LWP uses FORWARD rotation in the refinement step (see orbit.coffee)
-        var r2Refined = RotateByAxisAngle(r2, pcAxisRef, pcAngleRef);
+        var r2Refined = RotateByAxisAngle(p.R2, pcAxisRef, pcAngleRef);
 
         var lambert1 = LambertSolver.SolveAllRevolutions(
-            r1, r2Refined, tof, mu, maxRevs: 0, prograde: true);
+            p.R1, r2Refined, p.TimeOfFlight, p.Mu, maxRevs: 0, prograde: true);
         if (lambert1.Count == 0) return null;
 
-        var refinedOrbit    = OrbitFromState(r1, lambert1[0].V1, mu, t0);
+        var refinedOrbit    = OrbitFromState(p.R1, lambert1[0].V1, p.Mu, p.DepartureUT);
         double refinedNuArr = TrueAnomalyAtPosition(refinedOrbit, r2Refined);
 
         xOpt = GoldenSectionSearch(x1, x2, 1e-2, x =>
@@ -112,7 +109,7 @@ internal static class PlaneChangeComputer
         });
 
         // ---- Final transfer with optimal θ ----
-        return ComputeWithAngle(r1, r2, n0, tof, t0, mu,
+        return ComputeWithAngle(p.R1, p.R2, n0, p.TimeOfFlight, p.DepartureUT, p.Mu,
                                 xOpt, relativeInclination);
     }
 

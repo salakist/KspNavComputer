@@ -1,4 +1,5 @@
 using KspNavComputer.Core.Time;
+using KspNavComputer.Core.Maneuver;
 using KspNavComputer.Core.Transfer;
 using Xunit;
 

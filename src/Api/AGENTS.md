@@ -170,7 +170,7 @@ src/Api/
 │   └── PorkchopEndpoints.cs — Map() registers /api/porkchop
 ├── Mappers/
 └──   TransferMapper.cs    — ToResponse(TransferResult), ToBurnDto(Burn), ParseTransferType,
-                                 ToPlaneChangeBurnDto(PlaneChangeBurn)
+                                 ToPlaneChangeBurnDto(Burn)
 └── Program.cs               — bootstrap only: CORS + Map() calls + app.Run()
 ```
 
