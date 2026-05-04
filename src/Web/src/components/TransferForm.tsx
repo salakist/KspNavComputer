@@ -128,9 +128,16 @@ export default function TransferForm() {
             <input type="number" min={1} value={destAlt}
               onChange={e => setDestAlt(Number(e.target.value))} />
           </label>
-          <label>
+          {/* Destination inclination is accepted by the API but has no effect:
+              insertion Δv is currently modelled as pure deceleration.
+              The field is disabled until that is implemented. */}
+          <label
+            className="label-not-modelled"
+            title="Destination inclination is not yet modelled — insertion Δv is computed as pure deceleration regardless of capture orbit inclination."
+          >
             Inclination (°)
-            <input type="number" min={0} max={180} step={0.1} value={destInc}
+            <span className="not-modelled-note">(not modelled yet)</span>
+            <input type="number" min={0} max={180} step={0.1} value={destInc} disabled
               onChange={e => setDestInc(Number(e.target.value))} />
           </label>
           <label>
