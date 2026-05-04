@@ -16,7 +16,7 @@ src/Core/
 ├── Mechanics/
 │   ├── Vector3d.cs           in-house double-precision 3D vector struct
 │   ├── KeplerSolver.cs       Kepler's equation (Newton-Raphson), state vectors, perifocal→inertial rotation
-│   └── LambertSolver.cs      Universal-variable Lambert solver (0-rev elliptic); Stumpff C/S functions
+│   └── LambertSolver.cs      Sun/Gooding (1979) multi-revolution Lambert solver (Brent root-finding)
 ├── Time/
 │   └── KspTime.cs            UT↔KSP calendar (426-day year, 6-hour day); Format helper
 └── Transfer/
@@ -29,11 +29,19 @@ src/Core/
 ## Algorithm references
 
 - Kepler solver: Newton-Raphson on M = E − e·sin(E); tolerance 1e-10.
-- Lambert solver: Bate/Mueller/White §5.3 universal-variable / bisection; tolerance 1e-6.
-  **Known limitation**: the 180° (anti-podal) geometry is a mathematical singularity
-  (sin(Δν) = 0 ⇒ A = 0 ⇒ g = 0). Do not pass exactly-opposite position vectors.
+- Lambert solver: Sun (1979) / Gooding formulation with Brent's method root-finding.
+  - N=0 (zero-rev): Brent tolerance 1e-6.
+  - N≥1 (multi-rev): Brent tolerance 1e-4; two roots exist per N, both candidates evaluated.
+  - Arc selection: `angleParameter = ±sqrt(n/m)`; negative for long-way (transfer angle > π).
+  - `FdtE(x, N)` time-of-flight equation includes `N·π` term for multi-revolution orbits.
+  - `TransferComputer` solves for both prograde and retrograde and picks the cheapest total Δv.
+  - **Known limitation**: the 180° (anti-podal) geometry (transfer angle = π) is a degenerate
+    case where the orbit plane is undefined. Do not pass exactly-opposite position vectors.
 - Perifocal → inertial rotation: standard 3-1-3 Euler sequence R_z(-Ω)·R_x(-i)·R_z(-ω).
-- Ejection/insertion Δv: vis-viva hyperbolic-excess method (v∞ → v_periapsis → v_circular).
+- Ejection Δv: `sqrt(v_circ² + v_peri² − 2·v_circ·v_peri·cos(i_ej))` (law of cosines for
+  plane change when ejection inclination ≠ 0), where `v_peri = sqrt(v∞² + 2μ/r − 2μ/r_SOI)`.
+- Insertion Δv: `|sqrt(v∞² + 2·v_circ² − 2μ/r_SOI) − v_circ|` (no plane-change term;
+  matches LWP `insertionToCircularDeltaV`).
 
 ## Body data
 
@@ -58,4 +66,4 @@ Convert only at input/output boundaries (e.g. km → m for altitude inputs).
 - No code copied from reference implementations.
 - No third-party math libraries (Vector3d is in-house).
 - Time always in UT seconds; KSP calendar strings only for display.
-- Lambert: 0-revolution solutions only (Increment 1a/1b). Multi-rev deferred.
+- Lambert: multi-revolution support implemented (N = 0 … maxRevs, default 10).
