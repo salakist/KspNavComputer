@@ -1,0 +1,53 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run: Full Stack",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "pwsh",
+      "runtimeArgs": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}/scripts/start-app.ps1",
+        "-NoPrompt",
+        "-RestartRunning",
+        "-OpenBrowser"
+      ],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "API (debug)",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/Api/bin/Debug/net8.0/KspNavComputer.Api.dll",
+      "cwd": "${workspaceFolder}/src/Api",
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://localhost:5000"
+      },
+      "preLaunchTask": "api:build"
+    },
+    {
+      "name": "Web (Vite + Chrome debug)",
+      "type": "pwa-chrome",
+      "request": "launch",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/src/Web",
+      "preLaunchTask": "web:dev"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Debug: Full Stack (C# + TS)",
+      "configurations": [
+        "API (debug)",
+        "Web (Vite + Chrome debug)"
+      ],
+      "stopAll": true,
+      "postDebugTask": "stack:stop"
+    }
+  ]
+}
