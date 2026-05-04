@@ -52,14 +52,18 @@ loadLwp('celestialbodies.js');     // sets global.CelestialBody
 // stable (Lambert solver well away from degenerate geometry).
 
 const cases = [
-    // Kerbin → Duna  (near Hohmann window ~Y1D237)
-    { origin: 'Kerbin', destination: 'Duna',  departureUT:  5_091_600, tof: 5_184_000, r0:  100_000, r1:  100_000 },
+    // Kerbin → Duna  (near Hohmann window ~Y1D237, outer planet)
+    { origin: 'Kerbin', destination: 'Duna',  departureUT:  5_091_600, tof:  5_184_000, r0: 100_000, r1: 100_000 },
     // Kerbin → Jool  (outer giant)
     { origin: 'Kerbin', destination: 'Jool',  departureUT: 12_960_000, tof: 20_736_000, r0: 100_000, r1: 100_000 },
-    // Kerbin → Dres  (outer asteroid belt, dep=40M tof=10M, well-separated geometry)
+    // Kerbin → Dres  (outer asteroid belt, well-separated geometry)
     { origin: 'Kerbin', destination: 'Dres',  departureUT: 40_000_000, tof: 10_000_000, r0: 100_000, r1: 100_000 },
     // Kerbin → Eeloo (outer edge)
     { origin: 'Kerbin', destination: 'Eeloo', departureUT: 20_000_000, tof: 40_000_000, r0: 100_000, r1: 100_000 },
+    // Kerbin → Eve   (inner planet — long-way arc is cheaper; validates retrograde Lambert)
+    { origin: 'Kerbin', destination: 'Eve',   departureUT:  3_000_000, tof:  4_320_000, r0: 100_000, r1: 100_000 },
+    // Kerbin → Moho  (inner, high-eccentricity — another retrograde-arc validation)
+    { origin: 'Kerbin', destination: 'Moho',  departureUT:  1_800_000, tof:  3_456_000, r0: 100_000, r1: 100_000 },
 ];
 
 // ---- Run -------------------------------------------------------------------

@@ -1,50 +1,59 @@
 namespace KspNavComputer.Core.Mechanics;
 
 /// <summary>
-/// Lambert's problem solver using the universal-variable / Battin formulation.
-/// Reference: Bate, Mueller &amp; White (1971); Izzo (2015) for the multi-rev case
-/// (only 0-rev solutions are used in Increment 1).
-///
-/// Given two position vectors r1, r2 and a time-of-flight dt, solves for the
-/// departure velocity v1 and arrival velocity v2 of the connecting conic.
+/// Lambert's problem solver using the Sun (1979) / Gooding formulation.
+/// Supports multi-revolution solutions, matching alexmoon's Launch Window Planner (LWP).
 /// </summary>
 public static class LambertSolver
 {
-    private const double Tolerance    = 1e-6;
-    private const int    MaxIter      = 500;
+    private const double MachineEps = 2.22e-16;
+    private const double RootTol    = 1e-6;
 
     // -------------------------------------------------------------------------
-    // Stumpff functions
+    // Inverse hyperbolic cotangent
     // -------------------------------------------------------------------------
+    private static double Acoth(double x) => 0.5 * Math.Log((x + 1.0) / (x - 1.0));
 
-    private static double StumpffC(double psi)
-    {
-        if (psi > 1e-6)
-        {
-            double sqrtPsi = Math.Sqrt(psi);
-            return (1.0 - Math.Cos(sqrtPsi)) / psi;
-        }
-        if (psi < -1e-6)
-        {
-            double sqrtNeg = Math.Sqrt(-psi);
-            return (1.0 - Math.Cosh(sqrtNeg)) / psi;
-        }
-        return 0.5 - psi / 24.0 + psi * psi / 720.0;   // Taylor series around 0
-    }
+    // -------------------------------------------------------------------------
+    // Inverse cotangent
+    // -------------------------------------------------------------------------
+    private static double Acot(double x) => 0.5 * Math.PI - Math.Atan(x);
 
-    private static double StumpffS(double psi)
+    // -------------------------------------------------------------------------
+    // Brent's root-finding method
+    // -------------------------------------------------------------------------
+    private static double Brent(double a, double b, double tol, Func<double, double> f)
     {
-        if (psi > 1e-6)
+        double fa = f(a), fb = f(b);
+        double c = a, fc = fa, d = 0, e = 0;
+        for (int i = 0; i < 500; i++)
         {
-            double sqrtPsi = Math.Sqrt(psi);
-            return (sqrtPsi - Math.Sin(sqrtPsi)) / (psi * sqrtPsi);
+            if (fb * fc > 0) { c = a; fc = fa; d = e = b - a; }
+            if (Math.Abs(fc) < Math.Abs(fb)) { a = b; b = c; c = a; fa = fb; fb = fc; fc = fa; }
+            double tol1 = 2.0 * MachineEps * Math.Abs(b) + 0.5 * tol;
+            double xm   = 0.5 * (c - b);
+            if (Math.Abs(xm) <= tol1 || fb == 0) return b;
+            if (Math.Abs(e) >= tol1 && Math.Abs(fa) > Math.Abs(fb))
+            {
+                double s = fb / fa, p, q, r2;
+                if (a == c) { p = 2.0 * xm * s; q = 1.0 - s; }
+                else
+                {
+                    q = fa / fc; r2 = fb / fc;
+                    p = s * (2.0 * xm * q * (q - r2) - (b - a) * (r2 - 1.0));
+                    q = (q - 1.0) * (r2 - 1.0) * (s - 1.0);
+                }
+                if (p > 0) q = -q; else p = -p;
+                if (2.0 * p < Math.Min(3.0 * xm * q - Math.Abs(tol1 * q), Math.Abs(e * q)))
+                { e = d; d = p / q; }
+                else { d = xm; e = d; }
+            }
+            else { d = xm; e = d; }
+            a = b; fa = fb;
+            b += Math.Abs(d) > tol1 ? d : (xm > 0 ? tol1 : -tol1);
+            fb = f(b);
         }
-        if (psi < -1e-6)
-        {
-            double sqrtNeg = Math.Sqrt(-psi);
-            return (Math.Sinh(sqrtNeg) - sqrtNeg) / ((-psi) * sqrtNeg);
-        }
-        return 1.0 / 6.0 - psi / 120.0 + psi * psi / 5040.0;
+        return b;
     }
 
     // -------------------------------------------------------------------------
@@ -52,82 +61,186 @@ public static class LambertSolver
     // -------------------------------------------------------------------------
 
     /// <summary>
-    /// Solves Lambert's problem for an elliptical (0-revolution) transfer.
+    /// Solves Lambert's problem and returns all solutions across revolutions 0..maxRevs.
+    /// Matches LWP's lambert() with the same prograde convention:
+    ///   prograde=1  → short-way (transferAngle &lt; 180°)
+    ///   prograde=-1 → long-way  (transferAngle &gt; 180°)
     /// </summary>
-    /// <param name="r1">Departure position vector [m] in inertial frame.</param>
-    /// <param name="r2">Arrival position vector [m] in inertial frame.</param>
-    /// <param name="dt">Time of flight [s]. Must be positive.</param>
-    /// <param name="mu">Gravitational parameter of the central body [m³/s²].</param>
-    /// <param name="prograde">
-    ///   True → short-way transfer (transfer angle &lt; 180°).
-    ///   False → long-way (retrograde) transfer.
-    /// </param>
-    /// <returns>
-    ///   (v1) departure velocity [m/s], (v2) arrival velocity [m/s].
-    /// </returns>
-    /// <exception cref="InvalidOperationException">
-    ///   Thrown when the solver fails to converge (degenerate geometry or
-    ///   numerically problematic input).
-    /// </exception>
-    public static (Vector3d V1, Vector3d V2) Solve(
-        Vector3d r1, Vector3d r2, double dt, double mu, bool prograde = true)
+    public static List<(Vector3d V1, Vector3d V2)> SolveAllRevolutions(
+        Vector3d r1, Vector3d r2, double dt, double mu, int maxRevs = 10, bool prograde = true)
     {
         double r1Mag = r1.Magnitude;
         double r2Mag = r2.Magnitude;
 
-        // Transfer angle Δν
-        double cosDnu = Vector3d.Dot(r1, r2) / (r1Mag * r2Mag);
-        cosDnu = Math.Clamp(cosDnu, -1.0, 1.0);
+        Vector3d deltaPos = r2 - r1;
+        double c = deltaPos.Magnitude;
+        double m = r1Mag + r2Mag + c;
+        double n = r1Mag + r2Mag - c;
 
-        // Determine transfer direction from cross-product z-component
-        double crossZ = r1.X * r2.Y - r1.Y * r2.X;
-        bool   shortWay = prograde ? crossZ >= 0 : crossZ < 0;
+        // LWP: transferAngle > PI → angleParameter negative
+        // prograde=true → cross*1 >= 0 means short-way; cross*-1 means short-way reversed
+        double crossZ        = r1.X * r2.Y - r1.Y * r2.X;
+        int   progradeSign   = prograde ? 1 : -1;
+        double cosTA         = Vector3d.Dot(r1, r2) / (r1Mag * r2Mag);
+        cosTA = Math.Clamp(cosTA, -1.0, 1.0);
+        double transferAngle = Math.Acos(cosTA);
+        if (crossZ * progradeSign < 0)
+            transferAngle = 2 * Math.PI - transferAngle;
 
-        double dnu = Math.Acos(cosDnu);
-        if (!shortWay) dnu = 2.0 * Math.PI - dnu;
+        double angleParameter = Math.Sqrt(n / m);
+        if (transferAngle > Math.PI)
+            angleParameter = -angleParameter;
 
-        // A parameter (Battin / Bate-Mueller-White §5.3)
-        double A = Math.Sin(dnu) * Math.Sqrt(r1Mag * r2Mag / (1.0 - cosDnu));
-        // When Δν = 0 or 2π the problem is degenerate (same point)
-        if (Math.Abs(A) < 1e-6)
-            throw new InvalidOperationException("Lambert: degenerate geometry (Δν ≈ 0 or 2π).");
+        double normalizedTime          = 4.0 * dt * Math.Sqrt(mu / (m * m * m));
+        double parabolicNormalizedTime = 2.0 / 3.0 * (1.0 - angleParameter * angleParameter * angleParameter);
 
-        // Bisect / Newton-Raphson on F(ψ) = TOF(ψ) - dt = 0
-        // Bounds: ψ ∈ (-4π², 4π²) for elliptic/hyperbolic; start in elliptic range
-        double psiLow  = -4.0 * Math.PI * Math.PI;
-        double psiHigh =  4.0 * Math.PI * Math.PI;
-        double psi     = 0.0;
-        double y       = 0.0, x = 0.0;
+        double sqrtMu   = Math.Sqrt(mu);
+        double invSqrtM = 1.0 / Math.Sqrt(m);
+        double invSqrtN = 1.0 / Math.Sqrt(n);
 
-        for (int i = 0; i < MaxIter; i++)
+        var solutions = new List<(Vector3d, Vector3d)>();
+
+        double Fy(double xv)
         {
-            double c2 = StumpffC(psi);
-            double c3 = StumpffS(psi);
-
-            y = r1Mag + r2Mag + A * (psi * c3 - 1.0) / Math.Sqrt(c2);
-            if (y < 0) { psiLow = psi; psi = (psiLow + psiHigh) / 2.0; continue; }
-
-            x   = Math.Sqrt(y / c2);
-            double tof = (x * x * x * c3 + A * Math.Sqrt(y)) / Math.Sqrt(mu);
-
-            if (tof < dt)
-                psiLow  = psi;
-            else
-                psiHigh = psi;
-
-            double psiNew = (psiLow + psiHigh) / 2.0;
-            if (Math.Abs(psiNew - psi) < Tolerance) break;
-            psi = psiNew;
+            double sq = Math.Sqrt(Math.Max(0, 1.0 - angleParameter * angleParameter * (1.0 - xv * xv)));
+            return angleParameter < 0 ? -sq : sq;
         }
 
-        // Reconstruct f, g, f_dot, g_dot Lagrange coefficients
-        double f     = 1.0 - y / r1Mag;
-        double g     = A * Math.Sqrt(y / mu);
-        double gDot  = 1.0 - y / r2Mag;
+        void PushSolution(double xv, double yv)
+        {
+            double vc = sqrtMu * (yv * invSqrtN + xv * invSqrtM);
+            double vr = sqrtMu * (yv * invSqrtN - xv * invSqrtM);
+            Vector3d ec = deltaPos * (vc / c);
+            solutions.Add((ec + r1 * (vr / r1Mag), ec - r2 * (vr / r2Mag)));
+        }
 
-        Vector3d v1 = (r2 - f * r1) / g;
-        Vector3d v2 = (gDot * r2 - r1) / g;
+        if (RelErr(normalizedTime, parabolicNormalizedTime) < 1e-6)
+        {
+            double yv = angleParameter < 0 ? -1.0 : 1.0;
+            PushSolution(1.0, yv);
+            return solutions;
+        }
 
-        return (v1, v2);
+        if (normalizedTime < parabolicNormalizedTime)
+        {
+            // Hyperbolic
+            double FdtH(double xv)
+            {
+                double yv = Fy(xv);
+                double g  = Math.Sqrt(xv * xv - 1.0);
+                double h  = Math.Sqrt(yv * yv - 1.0);
+                return (Acoth(yv / h) - Acoth(xv / g) + xv * g - yv * h) / (g * g * g) - normalizedTime;
+            }
+            double lo = 1.0 + MachineEps, hi = 2.0;
+            while (FdtH(hi) > 0.0) { lo = hi; hi *= 2.0; }
+            double xv2 = Brent(lo, hi, RootTol, FdtH);
+            PushSolution(xv2, Fy(xv2));
+            return solutions;
+        }
+
+        // Elliptic — iterate 0..maxRevs revolutions
+        double minimumEnergyTau = Math.Acos(angleParameter)
+                                + angleParameter * Math.Sqrt(1.0 - angleParameter * angleParameter);
+        int maxRevsCapped = Math.Min(maxRevs, (int)Math.Floor(normalizedTime / Math.PI));
+
+        double FdtE(double xv, int Nrev)
+        {
+            double yv = Fy(xv);
+            double g  = Math.Sqrt(Math.Max(0, 1.0 - xv * xv));
+            double h  = Math.Sqrt(Math.Max(0, 1.0 - yv * yv));
+            return (Acot(xv / g) - Math.Atan(h / yv) - xv * g + yv * h + Nrev * Math.PI) / (g * g * g) - normalizedTime;
+        }
+
+        double Phix(double xv)
+        {
+            double g = Math.Sqrt(1.0 - xv * xv);
+            return Acot(xv / g) - (2.0 + xv * xv) * g / (3.0 * xv);
+        }
+
+        double Phiy(double yv)
+        {
+            double h = Math.Sqrt(1.0 - yv * yv);
+            return Math.Atan(h / yv) - (2.0 + yv * yv) * h / (3.0 * yv);
+        }
+
+        for (int N = 0; N <= maxRevsCapped; N++)
+        {
+            if (N > 0 && N == maxRevsCapped)
+            {
+                // Find minimum-time x for this revolution count
+                double xMT, minTau;
+                if (angleParameter == 1.0)
+                {
+                    xMT    = 0.0;
+                    minTau = minimumEnergyTau;
+                }
+                else if (angleParameter == 0.0)
+                {
+                    xMT    = Brent(0, 1, 1e-6, xv => Phix(xv) + N * Math.PI);
+                    minTau = 2.0 / (3.0 * xMT);
+                }
+                else
+                {
+                    xMT    = Brent(0, 1, 1e-6, xv => Phix(xv) - Phiy(Fy(xv)) + N * Math.PI);
+                    double yMT = Fy(xMT);
+                    minTau = 2.0 / 3.0 * (1.0 / xMT - angleParameter * angleParameter * angleParameter / Math.Abs(yMT));
+                }
+
+                if (RelErr(normalizedTime, minTau) < 1e-6)
+                {
+                    PushSolution(xMT, Fy(xMT));
+                    break;
+                }
+                if (normalizedTime < minTau) break;
+
+                if (normalizedTime < minimumEnergyTau)
+                {
+                    double xA = Brent(0, xMT, 1e-4, xv => FdtE(xv, N));
+                    if (!double.IsNaN(xA)) PushSolution(xA, Fy(xA));
+                    double xB = Brent(xMT, 1.0 - MachineEps, 1e-4, xv => FdtE(xv, N));
+                    if (!double.IsNaN(xB)) PushSolution(xB, Fy(xB));
+                    break;
+                }
+            }
+
+            if (RelErr(normalizedTime, minimumEnergyTau) < 1e-6)
+            {
+                PushSolution(0.0, Fy(0.0));
+                if (N > 0)
+                {
+                    double xB = Brent(1e-6, 1.0 - MachineEps, 1e-4, xv => FdtE(xv, N));
+                    if (!double.IsNaN(xB)) PushSolution(xB, Fy(xB));
+                }
+            }
+            else
+            {
+                double brentTol = N == 0 ? RootTol : 1e-4;
+                if (N > 0 || normalizedTime > minimumEnergyTau)
+                {
+                    double xA = Brent(-1.0 + MachineEps, 0, brentTol, xv => FdtE(xv, N));
+                    if (!double.IsNaN(xA)) PushSolution(xA, Fy(xA));
+                }
+                if (N > 0 || normalizedTime < minimumEnergyTau)
+                {
+                    double xB = Brent(0, 1.0 - MachineEps, brentTol, xv => FdtE(xv, N));
+                    if (!double.IsNaN(xB)) PushSolution(xB, Fy(xB));
+                }
+            }
+        }
+
+        return solutions;
     }
+
+    /// <summary>
+    /// Convenience single-solution wrapper. Returns the 0-revolution prograde or retrograde arc.
+    /// </summary>
+    public static (Vector3d V1, Vector3d V2) Solve(
+        Vector3d r1, Vector3d r2, double dt, double mu, bool prograde = true)
+    {
+        var sols = SolveAllRevolutions(r1, r2, dt, mu, maxRevs: 0, prograde: prograde);
+        if (sols.Count == 0) throw new InvalidOperationException("Lambert solver found no solution.");
+        return sols[0];
+    }
+
+    private static double RelErr(double a, double b) => Math.Abs(1.0 - a / b);
 }
