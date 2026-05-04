@@ -10,21 +10,20 @@ total Δv in KSP calendar format). One-click copy-to-clipboard per burn.
 Format example (without ejection) :
 ````
 Precise Maneuver Information
-Depart at:      2y, 266d, 0h, 47m, 43s
-       UT:      24151663
+Depart at:      2y, 265d, 0h, 47m, 43s
+       UT:      24133663
 Prograde Δv:    741.1 m/s
 Normal Δv:      0.0 m/s
 Radial Δv:      0.0 m/s
 Total Δv:       741 m/s
 ````
 
-Format example (with ejection) :
+Format example (with ejection — clipboard text is identical; ejection lines are
+displayed in the UI table but **not** included in the clipboard block) :
 ````
 Precise Maneuver Information
 Depart at:      2y, 174d, 2h, 35m, 31s
        UT:      22170932
-Ejection Angle: 113.73° to retrograde
-Ejection Inc.:  0.02°
 Prograde Δv:    1161.4 m/s
 Normal Δv:      0.0 m/s
 Radial Δv:      0.0 m/s
@@ -77,8 +76,9 @@ angle and inclination (the lines the PM mod includes when the ejection orbit is 
 
 ### Tests
 
-- **`PreciseManeuverFormatterTests.cs`** — 9 tests: KSP calendar formatting, UT formatting,
-  ejection/insertion blocks, ejection angle lines (prograde/retrograde), line ordering.
+- **`PreciseManeuverFormatterTests.cs`** — 8 tests: KSP calendar formatting (both year and day
+  0-indexed), UT formatting, ejection/insertion blocks, ejection data absent from clipboard
+  text (3 tests assert `DoesNotContain` / 7-line count), line ordering.
 - **`ReferenceTransferTests.cs`** — extended to assert `EjectionAngleDeg` and
   `EjectionInclinationDeg` within ±0.5° of LWP reference values for all 10 one-way cases.
 - **`ReferenceRoundTripTests.cs`** — extended similarly for both legs of 2 round-trip cases.
@@ -88,7 +88,12 @@ angle and inclination (the lines the PM mod includes when the ejection orbit is 
 
 ### Scope note
 
-The Precise Maneuver mod's in-game clipboard format also includes `Ejection Angle:` and
-`Ejection Inc.:` lines. The PM mod computes these at runtime from the actual vessel position;
-we compute them pre-flight from hyperbola geometry — the same algorithm as LWP.
-The LWP reference data confirms our values agree within ±0.5°.
+Ejection angle and inclination are computed pre-flight from hyperbola geometry (LWP algorithm)
+and displayed in the UI table. They are intentionally **excluded** from the clipboard text
+because the Precise Maneuver mod's `NodeManager.ChangeNodeFromString` treats an
+`Ejection Angle:` line as a node repositioning command — it moves the node to match that
+angle on the vessel's live orbit — which shifts the burn UT and breaks the encounter.
+
+KSP day display convention: days are 0-indexed (Day 0 = first day of year). The formatter
+uses `c.Day - 1` so the output matches the PM mod's display (e.g. KSP Year 3 Day 266
+→ `"2y, 265d, ..."`).
