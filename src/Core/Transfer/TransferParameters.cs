@@ -6,8 +6,10 @@ namespace KspNavComputer.Core.Transfer;
 public record TransferParameters(
     CelestialBody Origin,
     CelestialBody Destination,
-    double        DepartureUT,      // [s UT]
-    double        TimeOfFlight,     // [s]
+    double        DepartureUT,                               // [s UT]
+    double        TimeOfFlight,                              // [s]
     ParkingOrbit  OriginOrbit,
-    ParkingOrbit  DestinationOrbit
+    ParkingOrbit  DestinationOrbit,
+    TransferType  TransferType    = TransferType.Optimal,
+    bool          NoInsertionBurn = false                    // true = fly-by / aerocapture
 );

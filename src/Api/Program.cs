@@ -16,6 +16,7 @@ app.UseCors();
 
 TransferEndpoints.Map(app);
 BodiesEndpoints.Map(app);
+PorkchopEndpoints.Map(app);
 
 app.Run();
 
