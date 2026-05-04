@@ -51,6 +51,10 @@ src/Core/
   Collapses to `|v_hyper − v_park|` when deltaI = 0.
 - Insertion Δv: `|v_hyper − v_park|` (no inclination term; matches LWP
   `insertionToCircularDeltaV`).  Eccentricity is still applied via v_park.
+  **Known limitation**: destination orbit inclination is accepted but ignored — the
+  burn is modelled as pure deceleration.  For an inclined capture orbit this
+  underestimates the true Δv; the correct formula is the same law-of-cosines as
+  ejection.  Deferred to a future increment.
 
 ## Body data
 
