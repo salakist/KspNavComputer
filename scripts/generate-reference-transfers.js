@@ -64,6 +64,16 @@ const cases = [
     { origin: 'Kerbin', destination: 'Eve',   departureUT:  3_000_000, tof:  4_320_000, r0: 100_000, r1: 100_000 },
     // Kerbin → Moho  (inner, high-eccentricity — another retrograde-arc validation)
     { origin: 'Kerbin', destination: 'Moho',  departureUT:  1_800_000, tof:  3_456_000, r0: 100_000, r1: 100_000 },
+
+    // ---- Additional cases added for 1c baseline ----
+    // Kerbin → Duna second window (Y2-ish) — validates same geometry at a later epoch
+    { origin: 'Kerbin', destination: 'Duna',  departureUT: 14_256_000, tof:  5_616_000, r0: 100_000, r1:  60_000 },
+    // Kerbin → Jool second geometry (shorter TOF, more expensive) — different Lambert arc
+    { origin: 'Kerbin', destination: 'Jool',  departureUT: 30_000_000, tof: 16_416_000, r0: 100_000, r1: 200_000 },
+    // Kerbin → Eve  short TOF (more expensive insertion) — stresses high insertion Δv
+    { origin: 'Kerbin', destination: 'Eve',   departureUT: 20_000_000, tof:  2_160_000, r0: 100_000, r1: 100_000 },
+    // Duna → Kerbin (non-Kerbin origin — validates origin body generalisation)
+    { origin: 'Duna',   destination: 'Kerbin', departureUT: 10_000_000, tof:  5_184_000, r0:  60_000, r1: 100_000 },
 ];
 
 // ---- Run -------------------------------------------------------------------

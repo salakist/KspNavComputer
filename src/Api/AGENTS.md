@@ -23,9 +23,16 @@ Request (JSON):
   "departureUT": 4536870,
   "timeOfFlight": 4557600,
   "originAltitude": 100000,
-  "destinationAltitude": 60000
+  "destinationAltitude": 60000,
+  "originInclination": 0,
+  "destinationInclination": 0,
+  "originEccentricity": 0,
+  "destinationEccentricity": 0
 }
 ```
+
+The four inclination/eccentricity fields are **optional** (default 0 — circular equatorial).
+Inclination is in **degrees**; converted to radians before passing to `ParkingOrbit`.
 
 Response (JSON):
 ```json
@@ -54,9 +61,16 @@ Request (JSON):
   "stayDuration": 7776000,
   "returnTimeOfFlight": 5400000,
   "originAltitude": 100000,
-  "destinationAltitude": 60000
+  "destinationAltitude": 60000,
+  "originInclination": 0,
+  "destinationInclination": 0,
+  "originEccentricity": 0,
+  "destinationEccentricity": 0
 }
 ```
+
+The four inclination/eccentricity fields are **optional** (default 0).
+Inclination is in **degrees**.
 
 Response (JSON): `{ outbound, return }` each being a `TransferResponse` object,
 plus `totalDeltaV` (sum of both legs).
