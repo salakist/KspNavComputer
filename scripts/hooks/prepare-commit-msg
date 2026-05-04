@@ -1,0 +1,17 @@
+#!/bin/sh
+# prepare-commit-msg — auto-append "Agent: GitHub Copilot" trailer
+#
+# Runs when committing as salakist-agent.  Ensures the required trailer is
+# present without requiring the agent to remember to add it manually.
+#
+# Install (run once per clone):
+#   git config core.hooksPath scripts/hooks
+
+COMMIT_MSG_FILE="$1"
+AUTHOR_NAME=$(git config user.name)
+
+if [ "$AUTHOR_NAME" = "salakist-agent" ]; then
+    if ! grep -qF "Agent: GitHub Copilot" "$COMMIT_MSG_FILE"; then
+        printf "\nAgent: GitHub Copilot\n" >> "$COMMIT_MSG_FILE"
+    fi
+fi
