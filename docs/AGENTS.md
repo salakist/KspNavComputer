@@ -44,25 +44,23 @@ The **Actuals** section is populated when this increment is delivered.
 
 ## Update policy
 
-- **Plan sections**: written once at scoping time, never edited afterward.
-- **Actuals sections**: written once at delivery, never edited afterward.
-- **Inherited sections**: appended to when a prior increment's actuals identify an
-  impact on this increment. Update both the source actuals and the target inherited
-  section in the same commit.
-- **Roadmap**: update the status column whenever an increment completes.
+All doc updates must land in the **same commit** as the triggering change.
 
----
+**Increment files:**
 
-## Documentation maintenance triggers
-
-These docs must be kept in sync with the code. Update in the **same commit** as the code change:
-
-| Trigger | Doc to update |
-|---------|---------------|
-| Any change to `LambertSolver.cs` or `KeplerSolver.cs` | [`algorithms/lambert.md`](algorithms/lambert.md) |
-| Any change to `ManeuverCalculator.cs` or `TransferComputer.cs` | [`algorithms/delta-v.md`](algorithms/delta-v.md) |
-| Any change to `CelestialBody.cs`, `OrbitalElements.cs`, or `BodyDatabase.cs` | [`body-data-schema.md`](body-data-schema.md) |
-| Commit/PR workflow changes | [`commit-policy.md`](commit-policy.md) |
+| Event | Action |
+|-------|--------|
 | Increment scoped | Add `## Plan` to `planning/increments/increment-N.md`; update `planning/roadmap.md` |
 | Increment delivered | Add `## Actuals` to `planning/increments/increment-N.md`; update `planning/roadmap.md` |
 | Prior increment actuals affect a future increment | Add `## Inherited` to the future `increment-N.md` in the same commit as the actuals |
+
+Plan sections are written once and never edited. Actuals sections are written once at delivery and never edited.
+
+**Code-coupled docs:**
+
+| Changed file(s) | Doc to update |
+|-----------------|---------------|
+| `LambertSolver.cs`, `KeplerSolver.cs` | [`algorithms/lambert.md`](algorithms/lambert.md) |
+| `ManeuverCalculator.cs`, `TransferComputer.cs` | [`algorithms/delta-v.md`](algorithms/delta-v.md) |
+| `CelestialBody.cs`, `OrbitalElements.cs`, `BodyDatabase.cs` | [`body-data-schema.md`](body-data-schema.md) |
+| Commit/PR workflow changes | [`commit-policy.md`](commit-policy.md) |
