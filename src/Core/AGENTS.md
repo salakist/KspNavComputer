@@ -20,10 +20,13 @@ src/Core/
 ├── Time/
 │   └── KspTime.cs            UT↔KSP calendar (426-day year, 6-hour day); Format helper
 └── Transfer/
-    ├── ParkingOrbit.cs       record: Altitude, Inclination (reserved), Eccentricity (reserved)
-    ├── TransferParameters.cs record: Origin, Destination, DepartureUT, TOF, parking orbits
-    ├── TransferResult.cs     record: departure/arrival UT, ejection/insertion/total Δv
-    └── TransferComputer.cs   orchestrates Kepler → Lambert → hyperbolic-excess → parking-orbit Δv
+    ├── ParkingOrbit.cs          record: Altitude, Inclination (reserved), Eccentricity (reserved)
+    ├── TransferParameters.cs    record: Origin, Destination, DepartureUT, TOF, parking orbits
+    ├── TransferResult.cs        record: departure/arrival UT, ejection/insertion/total Δv
+    ├── RoundTripParameters.cs   record: Origin, Destination, DepartureUT, OutboundTOF, StayDuration,
+    │                                    ReturnTOF, OriginOrbit, DestinationOrbit
+    ├── RoundTripResult.cs       record: Outbound (TransferResult), Return (TransferResult), TotalDeltaV
+    └── TransferComputer.cs      orchestrates Kepler → Lambert → Δv; also ComputeRoundTrip (two legs)
 ```
 
 ## Algorithm references

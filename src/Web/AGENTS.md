@@ -11,9 +11,9 @@ at `http://localhost:5000` during development.
 src/Web/
 ├── src/
 │   ├── api/
-│   │   └── transferClient.ts   typed fetch wrappers for /api/transfer and /api/bodies
+│   │   └── transferClient.ts   typed fetch wrappers for /api/transfer, /api/transfer/roundtrip, and /api/bodies
 │   ├── components/
-│   │   └── TransferForm.tsx    form + inline result panel (single-component for 1a)
+│   │   └── TransferForm.tsx    form + result panels; round-trip checkbox toggles extra fields and shows both legs
 │   ├── App.tsx                 root component — header + <TransferForm>
 │   ├── App.css                 minimal utility styles
 │   ├── index.css               global reset/base styles

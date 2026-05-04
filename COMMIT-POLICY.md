@@ -110,6 +110,20 @@ be clean.
 
 ---
 
+## Git hooks
+
+A `prepare-commit-msg` hook lives at `scripts/hooks/prepare-commit-msg`.
+It automatically appends the `Agent: GitHub Copilot` trailer to every commit
+authored by `salakist-agent`, so the trailer can never be accidentally omitted.
+
+The hook is activated via a local config key (see `README.md` setup):
+
+```powershell
+git config core.hooksPath scripts/hooks
+```
+
+---
+
 ## Pre-commit workflow
 
 ### Step 1 — Quality gate

@@ -36,6 +36,17 @@ git config --local --unset user.name
 git config --local --unset user.email
 ```
 
+### Git hooks
+
+Run once after cloning to activate the versioned hooks in `scripts/hooks/`:
+
+```powershell
+git config core.hooksPath scripts/hooks
+```
+
+This enables the `prepare-commit-msg` hook that auto-appends the
+`Agent: GitHub Copilot` trailer when committing as `salakist-agent`.
+
 ### salakist-agent GitHub App — token generation
 
 Agent-authored pull requests are opened using the `salakist-agent` GitHub App so that the
