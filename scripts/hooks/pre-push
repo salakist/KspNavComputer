@@ -1,0 +1,43 @@
+#!/bin/sh
+# scripts/hooks/pre-push
+#
+# Enforces two rules for all contributors (humans and agents):
+#   1. Direct pushes to main are blocked — use a pull request.
+#   2. Branch names must follow Conventional Branch format:
+#      <type>/<description>
+#      where type is one of: feat fix docs style refactor perf test build ci chore ops
+#      and description is kebab-case.
+
+CONVENTIONAL_BRANCH_REGEX='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|ops)/[a-z0-9][a-z0-9\-]*$'
+
+while read local_ref local_sha remote_ref remote_sha; do
+    # Block direct push to main
+    if [ "$remote_ref" = "refs/heads/main" ]; then
+        echo "ERROR: Direct push to main is not allowed."
+        echo "Create a branch and open a pull request instead."
+        exit 1
+    fi
+
+    # Extract branch name from the remote ref being pushed
+    branch="${remote_ref#refs/heads/}"
+
+    # Validate Conventional Branch format
+    if ! echo "$branch" | grep -Eq "$CONVENTIONAL_BRANCH_REGEX"; then
+        echo "ERROR: Branch name '$branch' does not follow Conventional Branch format."
+        echo ""
+        echo "Expected: <type>/<description>"
+        echo "  - type must be one of: feat fix docs style refactor perf test build ci chore ops"
+        echo "  - description must be kebab-case (lowercase letters, digits, hyphens)"
+        echo ""
+        echo "Examples:"
+        echo "  feat/transfer-window-porkchop-plot"
+        echo "  fix/lambert-anti-podal-geometry"
+        echo "  docs/update-increment-2-plan"
+        echo "  ci/add-quality-gate-workflow"
+        echo ""
+        echo "Tip: use scripts/setup/new-branch.ps1 to create a correctly-named branch."
+        exit 1
+    fi
+done
+
+exit 0

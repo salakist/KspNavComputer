@@ -1,0 +1,35 @@
+name: Quality Gate — Full (manual)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  quality-gate-full:
+    name: quality-gate-full
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Web dependencies
+        working-directory: src/Web
+        run: npm ci
+
+      - name: Restore .NET packages
+        run: dotnet restore KspNavComputer.slnx
+
+      - name: Run full-base quality gate
+        run: pwsh scripts/checks/run-full-checks.ps1

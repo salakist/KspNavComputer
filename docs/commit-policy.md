@@ -112,15 +112,33 @@ be clean.
 
 ## Git hooks
 
-A `prepare-commit-msg` hook lives at `scripts/hooks/prepare-commit-msg`.
-It automatically appends the `Agent: GitHub Copilot` trailer to every commit
-authored by `salakist-agent`, so the trailer can never be accidentally omitted.
-
-The hook is activated via a local config key (see `README.md` setup):
+All hooks live in `scripts/hooks/` and are installed via:
 
 ```powershell
-git config core.hooksPath scripts/hooks
+pwsh scripts/setup/setup-hooks.ps1
 ```
+
+| Hook | Applies to | Enforces |
+|------|------------|----------|
+| `pre-commit` | everyone | Changed-code quality gate before every commit |
+| `commit-msg` | everyone | Conventional Commit format; agent identity/trailer policy |
+| `pre-push` | everyone | Conventional Branch names; blocks direct push to main |
+| `prepare-commit-msg` | agent only | Auto-appends `Agent: GitHub Copilot` trailer for `salakist-agent` |
+
+### Conventional Branch names
+
+Branch names must follow `<type>/<description>` where type is one of:
+`feat fix docs style refactor perf test build ci chore ops` and description is kebab-case.
+
+Use `pwsh scripts/setup/new-branch.ps1 feat/my-feature` to create a valid branch.
+
+### Conventional Commit format
+
+All commits (human and agent) must follow:
+```
+<type>(<optional scope>): <description>
+```
+Same type set as branch naming above. Validated by commitlint on every commit.
 
 ---
 
@@ -128,21 +146,21 @@ git config core.hooksPath scripts/hooks
 
 ### Step 1 — Quality gate
 
-Run the quality gate script and retain the log path:
+Run the changed-code quality gate:
 
 ```powershell
-./scripts/checks/run-checks.ps1
+pwsh scripts/checks/run-checks.ps1
 ```
 
-> **Note**: This script does not exist yet. It will be created at the end of Increment 1 and
-> will run `dotnet build` + `dotnet test` at minimum. Until then, Step 1 must be marked
-> `SKIPPED – quality gate not yet established` for all commits that include no production
-> code (scaffolding, docs, config only). Any commit touching production code after Increment 1
-> is complete must not skip Step 1.
+The gate runs automatically via the `pre-commit` hook on every commit. It covers:
+- C# compiler and analyzer errors/warnings for changed files (blocking)
+- IDE/Roslyn cosmetic diagnostics for changed files (non-blocking warning)
+- Web ESLint for changed `src/Web/src` files (blocking)
+- Core line coverage for changed production Core files, threshold 80% (blocking)
 
-Non-blocking cosmetic diagnostics reported by the gate still require handling: fix them in
-touched files or state a deferral reason in chat. Do not suppress with `#pragma warning disable`,
-`NoWarn`, or similar.
+**Non-blocking cosmetic diagnostics must still be handled.** Fix them on touched files
+or state a short deferral reason in the commit body. Do not suppress with
+`#pragma warning disable`, `NoWarn`, or similar constructs.
 
 Never bypass hooks with `--no-verify`.
 
@@ -177,11 +195,8 @@ Rules:
 ## Skip conditions
 
 1. Any `SKIPPED` step requires a one-line reason.
-2. **Step 1** may be `SKIPPED` only when:
-   - The quality gate script does not yet exist (pre-Increment 1 completion), **and**
-   - The commit contains no production code (no files under `src/` or `tests/`)
-   - Once the gate script exists, Step 1 may never be skipped for commits touching
-     production code.
+2. **Step 1** may be `SKIPPED` only when the commit contains no production code
+   (no files under `src/` or `tests/`) and all changes are docs, config, or scripts only.
 3. **Step 2** may be `SKIPPED` only as `No documentation changes required` with a short
    reason tied to the staged changes.
 4. A documentation-only or config-only commit may mark both steps `SKIPPED` only when all

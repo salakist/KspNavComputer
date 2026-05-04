@@ -44,9 +44,20 @@ KspNavComputer/
 ├── scripts/
 │   ├── get-agent-token.ps1                         — salakist-agent GitHub App token
 │   ├── hooks/
+│   │   ├── pre-commit                              — runs changed-code quality gate before every commit
+│   │   ├── commit-msg                              — enforces Conventional Commit format; agent trailer policy
+│   │   ├── pre-push                                — blocks direct push to main; enforces Conventional Branch names
 │   │   └── prepare-commit-msg                      — auto-appends Agent trailer for salakist-agent commits
-│   └── checks/
-│       └── run-checks.ps1                          — quality gate (created end of Increment 1)
+│   ├── checks/
+│   │   ├── run-checks.ps1                          — changed-code quality gate (pre-commit + PR)
+│   │   └── run-full-checks.ps1                     — full-base quality gate (manual / workflow_dispatch)
+│   ├── lib/
+│   │   ├── common.ps1                              — shared: headers, .NET diagnostic parsing, format helpers
+│   │   ├── change-detection.ps1                    — staged/PR/working-tree scope detection; file classifiers
+│   │   └── coverage.ps1                            — Core coverage collection and threshold reporting
+│   └── setup/
+│       ├── setup-hooks.ps1                         — installs all hooks + commitlint deps (run once per clone)
+│       └── new-branch.ps1                          — creates a Conventional Branch-compliant branch
 ├── AGENTS.md                                       — this file
 └── README.md                                       — contributor setup
 ```

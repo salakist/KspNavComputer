@@ -1,0 +1,25 @@
+#!/bin/sh
+# scripts/hooks/pre-commit
+#
+# Runs the changed-code quality gate before every commit.
+# Applies to all contributors (humans and agents).
+# Blocks the commit on any gate failure.
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT" || exit 1
+
+if command -v pwsh >/dev/null 2>&1; then
+    POWERSHELL_BIN="pwsh"
+elif command -v powershell >/dev/null 2>&1; then
+    POWERSHELL_BIN="powershell"
+else
+    echo "ERROR: PowerShell not found on PATH. scripts/checks/run-checks.ps1 cannot run."
+    exit 1
+fi
+
+if [ ! -f "scripts/checks/run-checks.ps1" ]; then
+    echo "ERROR: scripts/checks/run-checks.ps1 not found. Are you in the KspNavComputer repo root?"
+    exit 1
+fi
+
+"$POWERSHELL_BIN" -NoProfile -ExecutionPolicy Bypass -File "scripts/checks/run-checks.ps1"

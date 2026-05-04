@@ -23,6 +23,15 @@
 
 ---
 
+## Quality gate notes
+
+- Core (80% line coverage threshold) is enforced by the changed-code and full-base gates.
+- `KspNavComputer.Api` is included in analyzer and ESLint checks but **excluded from the
+  coverage threshold** until API-level tests are introduced. Update this note when API
+  tests are added and include Api in the coverage scope.
+
+---
+
 ## One-line descriptions
 
 | Increment | Description |
