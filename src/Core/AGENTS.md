@@ -27,9 +27,9 @@ src/Core/
     ├── BurnVector.cs             record: Prograde, Normal, Radial [m/s]; Magnitude property; Zero sentinel
     ├── EjectionDetails.cs        record: AngleDeg (signed°), InclinationDeg (°); see docs/algorithms/delta-v.md
     ├── Burn.cs                   record: DeltaV [m/s], BurnUT [s UT], Vector (BurnVector), Ejection (EjectionDetails?)
-    ├── PlaneChangeBurn.cs        record: DeltaV [m/s], BurnUT [s UT], Vector (BurnVector)
+    ├── PlaneChangeResult.cs      internal record: DepartureVelocity, ArrivalVelocity, PlaneChange (Burn)
     ├── TransferResult.cs         record: DepartureUT, ArrivalUT, Ejection, Insertion, TotalDeltaV,
-    │                                     PlaneChange (PlaneChangeBurn?), PhaseAngleDeg, TransferAngleDeg,
+    │                                     PlaneChange (Burn?), PhaseAngleDeg, TransferAngleDeg,
     │                                     TransferPeriapsis, TransferApoapsis, InsertionInclinationDeg
     ├── RoundTripParameters.cs    record: Origin, Destination, DepartureUT, OutboundTOF, StayDuration,
     │                                     ReturnTOF, OriginOrbit, DestinationOrbit
@@ -54,6 +54,7 @@ src/Core/
 Full algorithm documentation lives in `docs/algorithms/`:
 - [`docs/algorithms/lambert.md`](../../docs/algorithms/lambert.md) — Lambert solver (Sun/Gooding 1979, arc selection, multi-revolution, velocity reconstruction)
 - [`docs/algorithms/delta-v.md`](../../docs/algorithms/delta-v.md) — Δv pipeline (Kepler propagation, ManeuverCalculator formulas, precise burn UT)
+- [`docs/algorithms/porkchop.md`](../../docs/algorithms/porkchop.md) — transfer types and porkchop grid algorithm
 
 Key implementation notes for agents touching these files:
 - Kepler solver tolerance: `1e-10`.

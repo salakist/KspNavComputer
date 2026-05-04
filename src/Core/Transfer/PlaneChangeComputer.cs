@@ -48,7 +48,7 @@ internal static class PlaneChangeComputer
     ///   - relative inclination is effectively zero (coplanar bodies), or
     ///   - Lambert solver fails for the rotated geometry.
     /// </summary>
-    public static (Vector3d VT1, Vector3d VT2, PlaneChangeBurn PlaneChange)? Compute(
+    public static PlaneChangeResult? Compute(
         Vector3d r1, Vector3d v1Body,
         Vector3d r2,
         double tof, double t0, double mu)
@@ -137,7 +137,7 @@ internal static class PlaneChangeComputer
     // Core plane-change transfer for a fixed θ
     // -------------------------------------------------------------------------
 
-    private static (Vector3d VT1, Vector3d VT2, PlaneChangeBurn PlaneChange)?
+    private static PlaneChangeResult?
         ComputeWithAngle(
             Vector3d r1, Vector3d r2,
             Vector3d n0,
@@ -183,7 +183,7 @@ internal static class PlaneChangeComputer
         double normal   =  planeChangeDv * Math.Sign(planeChangeAngle)
                                          * Math.Cos(planeChangeAngle / 2.0);
 
-        var pcBurn = new PlaneChangeBurn(
+        var pcBurn = new Burn(
             DeltaV: planeChangeDv,
             BurnUT: planeChangeTime,
             Vector: new BurnVector(prograde, normal, 0.0));
@@ -191,7 +191,7 @@ internal static class PlaneChangeComputer
         // Rotate insertion velocity back to real space (forward rotation).
         var vT2 = RotateByAxisAngle(vT2InOriginPlane, pcAxis, planeChangeAngle);
 
-        return (vT1, vT2, pcBurn);
+        return new PlaneChangeResult(vT1, vT2, pcBurn);
     }
 
     // -------------------------------------------------------------------------

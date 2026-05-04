@@ -7,7 +7,7 @@ public record TransferResult(
     Burn            Ejection,             // ejection burn details (Δv, UT, vector)
     Burn            Insertion,            // insertion burn details (Δv, UT, vector)
     double          TotalDeltaV,          // sum of all burns [m/s]
-    PlaneChangeBurn? PlaneChange          = null, // mid-course plane change (null if ballistic)
+    Burn?            PlaneChange          = null, // mid-course plane change (null if ballistic)
     double          PhaseAngleDeg        = 0,    // angle between origin and destination at departure [°]
     double          TransferAngleDeg     = 0,    // angle swept during transfer (0–360°) [°]
     double          TransferPeriapsis    = 0,    // transfer orbit periapsis distance from central body [m]

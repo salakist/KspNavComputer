@@ -83,7 +83,7 @@ public static class TransferComputer
         double ballisticTotal = bestEject.DeltaV + bestInsert.DeltaV;
 
         // ---- 3. Optional plane-change ----
-        PlaneChangeBurn? planeChange = null;
+        Burn? planeChange = null;
 
         if (p.TransferType == TransferType.MidCoursePlaneChange
             || p.TransferType == TransferType.Optimal)
@@ -91,22 +91,21 @@ public static class TransferComputer
             var pcResult = PlaneChangeComputer.Compute(
                 r1, v1Body, r2, p.TimeOfFlight, departureUT, mu);
 
-            if (pcResult.HasValue)
+            if (pcResult != null)
             {
-                var (pcVT1, pcVT2, pcBurn) = pcResult.Value;
                 var pcEj  = ManeuverCalculator.Compute(
-                    p.OriginOrbit, p.Origin, pcVT1, v1Body, isEjection: true, refUT: departureUT);
-                var pcIns = ComputeInsertion(p, pcVT2, v2Body, arrivalUT);
-                double pcTotal = pcEj.DeltaV + pcBurn.DeltaV + pcIns.DeltaV;
+                    p.OriginOrbit, p.Origin, pcResult.DepartureVelocity, v1Body, isEjection: true, refUT: departureUT);
+                var pcIns = ComputeInsertion(p, pcResult.ArrivalVelocity, v2Body, arrivalUT);
+                double pcTotal = pcEj.DeltaV + pcResult.PlaneChange.DeltaV + pcIns.DeltaV;
 
                 if (p.TransferType == TransferType.MidCoursePlaneChange
                     || pcTotal < ballisticTotal)
                 {
                     bestEject  = pcEj;
                     bestInsert = pcIns;
-                    bestVT1    = pcVT1;
-                    bestVT2    = pcVT2;
-                    planeChange = pcBurn;
+                    bestVT1    = pcResult.DepartureVelocity;
+                    bestVT2    = pcResult.ArrivalVelocity;
+                    planeChange = pcResult.PlaneChange;
                 }
             }
         }

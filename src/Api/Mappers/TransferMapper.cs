@@ -59,17 +59,13 @@ internal static class TransferMapper
                               : new EjectionDetailsDto(b.Ejection.AngleDeg, b.Ejection.InclinationDeg)
     );
 
-    private static PlaneChangeBurnDto ToPlaneChangeBurnDto(PlaneChangeBurn pc)
-    {
-        var tempBurn = new Burn(pc.DeltaV, pc.BurnUT, pc.Vector);
-        return new PlaneChangeBurnDto(
-            DeltaV:              pc.DeltaV,
-            BurnUT:              pc.BurnUT,
-            BurnDate:            KspTime.Format(pc.BurnUT),
-            Vector:              new BurnVectorDto(pc.Vector.Prograde, pc.Vector.Normal, pc.Vector.Radial),
-            PreciseManeuverText: PreciseManeuverFormatter.Format(tempBurn)
-        );
-    }
+    private static PlaneChangeBurnDto ToPlaneChangeBurnDto(Burn pc) => new(
+        DeltaV:              pc.DeltaV,
+        BurnUT:              pc.BurnUT,
+        BurnDate:            KspTime.Format(pc.BurnUT),
+        Vector:              new BurnVectorDto(pc.Vector.Prograde, pc.Vector.Normal, pc.Vector.Radial),
+        PreciseManeuverText: PreciseManeuverFormatter.Format(pc)
+    );
 
     // Inclination is stored in degrees in DTOs; Core uses radians.
     private static ParkingOrbit ToParkingOrbit(
