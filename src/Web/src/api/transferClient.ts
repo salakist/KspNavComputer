@@ -78,8 +78,8 @@ export interface PorkchopRequest {
   destinationEccentricity?: number;
   noInsertionBurn?: boolean;
   transferType?: string;
-  gridCols?: number;
-  gridRows?: number;
+  gridCols?: number;  // default 300
+  gridRows?: number;  // default 300
 }
 
 export interface PorkchopResponse {

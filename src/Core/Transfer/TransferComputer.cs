@@ -84,6 +84,7 @@ public static class TransferComputer
         double ballisticTotal = bestEject.DeltaV + bestInsert.DeltaV;
 
         // ---- 3. Optional plane-change ----
+
         Burn? planeChange = null;
 
         if (p.TransferType == TransferType.MidCoursePlaneChange
@@ -109,6 +110,18 @@ public static class TransferComputer
                     planeChange = pcResult.PlaneChange;
                 }
             }
+        }
+
+        // ---- 3c. SOI-exit correction (refineTransfer) ----
+        // Accounts for origin body movement during the ~6-8 h SOI transit.
+        // Only applies when origin has a finite SOI (not the central star).
+        if (p.Origin.SphereOfInfluence > 0.0
+            && !double.IsPositiveInfinity(p.Origin.SphereOfInfluence)
+            && p.Origin.Orbit != null)
+        {
+            bestEject = RefineEjection(
+                bestVT1, v1Body, r2,
+                p.TimeOfFlight, departureUT, mu, p);
         }
 
         double totalDv = bestEject.DeltaV
@@ -250,6 +263,197 @@ public static class TransferComputer
         double vInfMag = vInf.Magnitude;
         if (vInfMag < 1e-9) return 0.0;
         return Math.Asin(Math.Clamp(vInf.Z / vInfMag, -1.0, 1.0));
+    }
+
+    // -------------------------------------------------------------------------
+    // SOI-exit correction (refineTransfer)
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Refines the ejection burn to account for the origin body's movement
+    /// during the ~6-8 h SOI transit (ported from LWP Orbit.refineTransfer).
+    ///
+    /// Algorithm (10 iterations):
+    ///   1. Compute ejection hyperbola from current transfer velocity.
+    ///   2. Integrate hyperbolic flight to get SOI-exit transit time t_transit.
+    ///   3. Corrected heliocentric departure = origin body position at
+    ///      (departureUT + t_transit) + spacecraft position relative to origin
+    ///      at SOI exit.
+    ///   4. Corrected TOF = original TOF − t_transit.
+    ///   5. Re-solve Lambert from corrected position/TOF → new departure velocity.
+    ///   6. Average every other iteration (LWP strategy to damp oscillation).
+    ///   Repeat until convergence; only the Ejection burn is updated.
+    /// </summary>
+    private static Burn RefineEjection(
+        Vector3d initialVT1,
+        Vector3d v1Body,     // origin body heliocentric velocity at departureUT
+        Vector3d r2,         // destination heliocentric position (fixed, at arrivalUT)
+        double   tof,        // original TOF [s]
+        double   departureUT,
+        double   mu,         // central body gravitational parameter
+        TransferParameters p)
+    {
+        double rSoi     = p.Origin.SphereOfInfluence;
+        double muOrigin = p.Origin.GravParam;
+        double rPeri    = p.Origin.Radius + p.OriginOrbit.Altitude;
+
+        Vector3d currentVT1     = initialVT1;
+        Vector3d lastOddVT1     = initialVT1;
+        Vector3d v1BodyCurrent  = v1Body;
+        double   tDepartCurrent = departureUT;
+
+        for (int i = 1; i <= 10; i++)
+        {
+            Vector3d vInfVec = currentVT1 - v1BodyCurrent;
+            double   vInf    = vInfVec.Magnitude;
+            if (vInf < 1e-9) break;
+
+            // ---- Hyperbola geometry ----
+            double vPeri = Math.Sqrt(vInf * vInf + 2.0 * muOrigin * (1.0 / rPeri - 1.0 / rSoi));
+            double eHyp  = rPeri * vPeri * vPeri / muOrigin - 1.0;
+            if (eHyp <= 1.0) break;
+
+            double smaAbs = muOrigin / (vInf * vInf); // |a| (positive)
+
+            // True anomaly at SOI exit
+            double cosNuSoi = Math.Clamp(
+                (rPeri * (1.0 + eHyp) - rSoi) / (eHyp * rSoi), -1.0, 1.0);
+            double nuSoi = Math.Acos(cosNuSoi);
+
+            // Hyperbolic transit time: periapsis → SOI exit
+            double cosH    = Math.Max(1.0,
+                (eHyp + Math.Cos(nuSoi)) / (1.0 + eHyp * Math.Cos(nuSoi)));
+            double H       = Math.Acosh(cosH);
+            double M       = eHyp * Math.Sinh(H) - H;
+            double nHyp    = Math.Sqrt(muOrigin / (smaAbs * smaAbs * smaAbs));
+            double tTransit = M / nHyp;
+
+            double tofCorr = tof - tTransit;
+            if (tofCorr <= 0.0) break;
+
+            double tDepart = departureUT + tTransit;
+
+            // ---- SOI-exit position relative to origin body ----
+            Vector3d? pHatNullable = ComputePeriapsisDirection(vInfVec, eHyp);
+            if (pHatNullable == null) break;
+
+            Vector3d pHat = pHatNullable.Value;
+            Vector3d nHat = Vector3d.Cross(pHat, vInfVec).Normalize();
+            Vector3d tHat = Vector3d.Cross(nHat, pHat);
+            Vector3d rSoiRelative = rSoi * (Math.Cos(nuSoi) * pHat + Math.Sin(nuSoi) * tHat);
+
+            // ---- Corrected heliocentric departure ----
+            var (r1Corr, v1BodyCorr) = KeplerSolver.StateAt(p.Origin.Orbit!, mu, tDepart);
+            r1Corr += rSoiRelative;
+
+            // ---- Re-solve Lambert ----
+            var solutions = new List<(Vector3d V1, Vector3d V2)>();
+            solutions.AddRange(LambertSolver.SolveAllRevolutions(
+                r1Corr, r2, tofCorr, mu, maxRevs: 10, prograde: true));
+            solutions.AddRange(LambertSolver.SolveAllRevolutions(
+                r1Corr, r2, tofCorr, mu, maxRevs: 10, prograde: false));
+
+            if (solutions.Count == 0) break;
+
+            // Pick solution with minimum ejection Δv
+            double   bestDv     = double.MaxValue;
+            Vector3d bestNewVT1 = currentVT1;
+            foreach (var (vT1New, _) in solutions)
+            {
+                var ej = ManeuverComputer.Compute(new ManeuverParameters(
+                    p.OriginOrbit, p.Origin, vT1New, v1BodyCorr, true, tDepart));
+                if (ej.DeltaV < bestDv)
+                {
+                    bestDv     = ej.DeltaV;
+                    bestNewVT1 = vT1New;
+                }
+            }
+
+            // LWP averaging: odd → save; even → average with previous odd
+            // to damp oscillations in case the series would otherwise diverge.
+            if (i % 2 == 0)
+                currentVT1 = 0.5 * (lastOddVT1 + bestNewVT1);
+            else
+            {
+                lastOddVT1 = bestNewVT1;
+                currentVT1 = bestNewVT1;
+            }
+
+            v1BodyCurrent  = v1BodyCorr;
+            tDepartCurrent = tDepart;
+        }
+
+        return ManeuverComputer.Compute(new ManeuverParameters(
+            p.OriginOrbit, p.Origin, currentVT1, v1BodyCurrent, true, tDepartCurrent,
+            ProgradeReferenceVelocity: v1Body));
+    }
+
+    /// <summary>
+    /// Finds the equatorial periapsis direction of the ejection hyperbola.
+    ///
+    /// The periapsis direction p satisfies:
+    ///   dot(p, vInfDir) = cos(ν∞) = −1/eHyp  (asymptote angle)
+    ///   p.z = 0  (equatorial periapsis)
+    ///   |p| = 1
+    ///   cross(p, vInfDir).z &gt; 0  (prograde / CCW orbit)
+    ///
+    /// Returns null when no valid equatorial-periapsis solution exists
+    /// (highly inclined transfers where |sin ν∞| &lt; |vInfDir.z|).
+    /// </summary>
+    private static Vector3d? ComputePeriapsisDirection(Vector3d vInfVec, double eHyp)
+    {
+        double vInf = vInfVec.Magnitude;
+        if (vInf < 1e-9 || eHyp <= 1.0) return null;
+
+        double ejX = vInfVec.X / vInf;
+        double ejY = vInfVec.Y / vInf;
+        double ejZ = vInfVec.Z / vInf;
+
+        // cos(ν∞) = −1/e, sin(ν∞) = sqrt(1 − 1/e²)
+        double cT       = -1.0 / eHyp;
+        double sinNuInf = Math.Sqrt(Math.Max(0.0, 1.0 - cT * cT));
+
+        // Equatorial periapsis only exists when |sin ν∞| ≥ |ejZ|
+        if (sinNuInf < Math.Abs(ejZ)) return null;
+
+        double pX, pY;
+
+        if (Math.Abs(ejY) < 1e-9)
+        {
+            if (Math.Abs(ejX) < 1e-9) return null;
+            pX = cT / ejX;
+            if (Math.Abs(pX) > 1.0) return null;
+            pY = Math.Sqrt(1.0 - pX * pX);
+            if (pX * ejY - pY * ejX < 0) pY = -pY;
+        }
+        else
+        {
+            double g    = -ejX / ejY;
+            double ac   = 1.0 + g * g;
+            double bc   = 2.0 * g * cT / ejY;
+            double cc   = cT * cT / (ejY * ejY) - 1.0;
+            double disc = bc * bc - 4.0 * ac * cc;
+            if (disc < 0.0) return null;
+
+            double q = bc < 0.0
+                ? -0.5 * (bc - Math.Sqrt(disc))
+                : -0.5 * (bc + Math.Sqrt(disc));
+
+            if (Math.Abs(q) < 1e-15) return null;
+
+            pX = q / ac;
+            pY = g * pX + cT / ejY;
+
+            if (pX * ejY - pY * ejX < 0)
+            {
+                pX = cc / q;
+                pY = g * pX + cT / ejY;
+            }
+        }
+
+        double pMag = Math.Sqrt(pX * pX + pY * pY);
+        if (pMag < 1e-9) return null;
+        return new Vector3d(pX / pMag, pY / pMag, 0.0);
     }
 }
 

@@ -59,8 +59,8 @@ export default function PorkchopForm({ onResult }: PorkchopFormProps) {
       originEccentricity:  originEcc,
       noInsertionBurn:     noInsertion,
       transferType,
-      gridCols: 100,
-      gridRows: 100,
+      gridCols: 300,
+      gridRows: 300,
       ...(noInsertion ? {} : {
         destinationInclination: destInc,
         destinationEccentricity: destEcc,
