@@ -99,31 +99,36 @@ const results = cases.map(c => {
         null, null, null, null, null  // let Orbit.transfer compute positions/velocities
     );
 
+    // Apply SOI-exit correction (matches our C# RefineEjection)
+    const refined = Orbit.refineTransfer(
+        transfer, 'ballistic', origin, destination, c.departureUT, c.tof, v0, v1
+    );
+
     // Convert LWP ejection angle [0, 2π) rad → signed degrees matching our C# convention:
     //   (0°, 180°] → positive (prograde side)
     //   (180°, 360°) → negative (retrograde side), via angleDeg = 180 − angleDeg
     let ejectionAngleDeg = null;
     let ejectionInclinationDeg = null;
-    if (transfer.ejectionAngle != null && !isNaN(transfer.ejectionAngle)) {
-        let angleDeg = transfer.ejectionAngle * 180 / Math.PI;
+    if (refined.ejectionAngle != null && !isNaN(refined.ejectionAngle)) {
+        let angleDeg = refined.ejectionAngle * 180 / Math.PI;
         if (angleDeg > 180) angleDeg = 180 - angleDeg;
         ejectionAngleDeg = angleDeg;
     }
-    if (transfer.ejectionInclination != null && !isNaN(transfer.ejectionInclination)) {
-        ejectionInclinationDeg = transfer.ejectionInclination * 180 / Math.PI;
+    if (refined.ejectionInclination != null && !isNaN(refined.ejectionInclination)) {
+        ejectionInclinationDeg = refined.ejectionInclination * 180 / Math.PI;
     }
 
     const result = {
-        source:              'alexmoon/ksp LWP (javascripts/, ballistic, no plane change)',
+        source:              'alexmoon/ksp LWP (javascripts/, ballistic, refineTransfer applied)',
         origin:              c.origin,
         destination:         c.destination,
         departureUT:         c.departureUT,
         timeOfFlight:        c.tof,
         parkingOrbitAltitude: c.r0,
         destinationOrbitAltitude: c.r1,
-        ejectionDeltaV:      transfer.ejectionDeltaV,
-        insertionDeltaV:     transfer.insertionDeltaV,
-        totalDeltaV:         transfer.deltaV,
+        ejectionDeltaV:      refined.ejectionDeltaV,
+        insertionDeltaV:     refined.insertionDeltaV,
+        totalDeltaV:         refined.deltaV,
         ejectionAngleDeg,
         ejectionInclinationDeg,
     };

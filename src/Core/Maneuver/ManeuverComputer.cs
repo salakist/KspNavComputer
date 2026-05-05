@@ -67,7 +67,9 @@ internal static class ManeuverComputer
         // ---- Ejection: combined speed-up + plane-change at periapsis ----
         if (p.IsEjection)
         {
-            EjectionDetails? ejDetails = ComputeEjectionDetails(vInfVec, rPeri, p.Body, p.BodyVelocity);
+            EjectionDetails? ejDetails = ComputeEjectionDetails(
+                vInfVec, rPeri, p.Body,
+                p.ProgradeReferenceVelocity ?? p.BodyVelocity);
 
             if (Math.Abs(vInfVec.Z) < 1e-9 || vInf < 1e-9)
             {

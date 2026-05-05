@@ -62,24 +62,27 @@ function oneWay(originName, destName, departureUT, tof, r0, r1) {
         null, null, null, null, null
     );
 
+    // Apply SOI-exit correction (matches our C# RefineEjection)
+    const refined = Orbit.refineTransfer(t, 'ballistic', origin, dest, departureUT, tof, v0, v1);
+
     // Convert LWP ejection angle [0, 2π) rad → signed degrees matching C# convention:
     //   (0°, 180°] → positive (prograde side)
     //   (180°, 360°) → negative (retrograde side), via angleDeg = 180 − angleDeg
     let ejectionAngleDeg = null;
     let ejectionInclinationDeg = null;
-    if (t.ejectionAngle != null && !isNaN(t.ejectionAngle)) {
-        let angleDeg = t.ejectionAngle * 180 / Math.PI;
+    if (refined.ejectionAngle != null && !isNaN(refined.ejectionAngle)) {
+        let angleDeg = refined.ejectionAngle * 180 / Math.PI;
         if (angleDeg > 180) angleDeg = 180 - angleDeg;
         ejectionAngleDeg = angleDeg;
     }
-    if (t.ejectionInclination != null && !isNaN(t.ejectionInclination)) {
-        ejectionInclinationDeg = t.ejectionInclination * 180 / Math.PI;
+    if (refined.ejectionInclination != null && !isNaN(refined.ejectionInclination)) {
+        ejectionInclinationDeg = refined.ejectionInclination * 180 / Math.PI;
     }
 
     return {
-        ejectionDeltaV:  t.ejectionDeltaV,
-        insertionDeltaV: t.insertionDeltaV,
-        totalDeltaV:     t.deltaV,
+        ejectionDeltaV:  refined.ejectionDeltaV,
+        insertionDeltaV: refined.insertionDeltaV,
+        totalDeltaV:     refined.deltaV,
         ejectionAngleDeg,
         ejectionInclinationDeg,
     };
@@ -133,7 +136,7 @@ const results = cases.map(c => {
     const ret      = oneWay(c.destination, c.origin,      returnDepartureUT, c.returnTof,  c.r1, c.r0);
 
     return {
-        source:                    'alexmoon/ksp LWP (javascripts/, ballistic, no plane change)',
+        source:                    'alexmoon/ksp LWP (javascripts/, ballistic, refineTransfer applied)',
         description:               c.label,
         origin:                    c.origin,
         destination:               c.destination,

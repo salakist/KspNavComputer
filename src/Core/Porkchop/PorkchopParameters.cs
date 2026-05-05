@@ -15,6 +15,6 @@ public record PorkchopParameters(
     double         EarliestDeparture,   // [s UT]
     double         LatestDeparture,     // [s UT]
     TransferType   TransferType  = TransferType.Optimal,
-    int            GridCols      = 100,
-    int            GridRows      = 100
+    int            GridCols      = 300,
+    int            GridRows      = 300
 );
