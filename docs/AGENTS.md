@@ -12,10 +12,14 @@ It is tracked in git (unlike `local-docs/`, which is gitignored).
 | [`initial-brief.md`](initial-brief.md) | The original brief as written before any planning — verbatim |
 | [`commit-policy.md`](commit-policy.md) | Agent commit policy: git identity, branch naming, commit format, PR workflow |
 | [`body-data-schema.md`](body-data-schema.md) | CelestialBody and OrbitalElements field reference; body inventory |
+| [`overview.md`](overview.md) | Problem statement, design principles, licensing, technical decisions |
+| [`architecture.md`](architecture.md) | Core layer call graphs, namespace map, key data types, algorithm doc index |
+| [`algorithms/kepler.md`](algorithms/kepler.md) | Kepler propagation: mean/eccentric/true anomaly, perifocal → inertial rotation |
 | [`algorithms/lambert.md`](algorithms/lambert.md) | Lambert solver: normalised variables, arc selection, multi-revolution, velocity reconstruction |
-| [`algorithms/delta-v.md`](algorithms/delta-v.md) | Transfer Δv pipeline: Kepler propagation, Lambert, maneuver calculation, burn UT |
-| [`algorithms/porkchop.md`](algorithms/porkchop.md) | Transfer types (ballistic/plane-change/optimal) and porkchop grid algorithm |
-| [`planning/overview.md`](planning/overview.md) | Problem statement, architecture decisions, design principles, licensing |
+| [`algorithms/maneuver.md`](algorithms/maneuver.md) | Maneuver calculation: hyperbolic excess, Δv, burn UT, ejection angle and inclination |
+| [`algorithms/plane-change.md`](algorithms/plane-change.md) | Mid-course plane change: relative inclination, golden-section search, Rodrigues rotation |
+| [`algorithms/transfer.md`](algorithms/transfer.md) | Transfer orchestration: Lambert selection, transfer types, SOI-exit correction |
+| [`algorithms/porkchop.md`](algorithms/porkchop.md) | Porkchop grid: TOF auto-range, grid indexing, log statistics |
 | [`planning/roadmap.md`](planning/roadmap.md) | Increment status table and one-line description of each increment |
 | `planning/increments/increment-N.md` | Plan + actuals for each increment (see below) |
 
@@ -61,8 +65,11 @@ Plan sections are written once and never edited. Actuals sections are written on
 
 | Changed file(s) | Doc to update |
 |-----------------|---------------|
-| `LambertSolver.cs`, `KeplerSolver.cs` | [`algorithms/lambert.md`](algorithms/lambert.md) |
-| `ManeuverComputer.cs`, `TransferComputer.cs`, `PlaneChangeComputer.cs` | [`algorithms/delta-v.md`](algorithms/delta-v.md) |
+| `KeplerSolver.cs` | [`algorithms/kepler.md`](algorithms/kepler.md) |
+| `LambertSolver.cs` | [`algorithms/lambert.md`](algorithms/lambert.md) |
+| `ManeuverComputer.cs` | [`algorithms/maneuver.md`](algorithms/maneuver.md) |
+| `PlaneChangeComputer.cs` | [`algorithms/plane-change.md`](algorithms/plane-change.md) |
+| `TransferComputer.cs` | [`algorithms/transfer.md`](algorithms/transfer.md) |
 | `PorkchopComputer.cs`, `TransferType.cs` | [`algorithms/porkchop.md`](algorithms/porkchop.md) |
 | `CelestialBody.cs`, `OrbitalElements.cs`, `BodyDatabase.cs` | [`body-data-schema.md`](body-data-schema.md) |
 | Commit/PR workflow changes | [`commit-policy.md`](commit-policy.md) |
