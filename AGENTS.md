@@ -37,8 +37,10 @@ KspNavComputer/
 │   └── Core/          KspNavComputer.Core.Tests    — xUnit unit tests
 ├── bruno/                                          — Bruno API collection (reference cases + inclination demo)
 ├── docs/                                           — tracked design and policy docs (see docs/AGENTS.md)
-│   ├── algorithms/                                 — algorithm reference docs (Lambert, Δv pipeline)
-│   ├── planning/                                   — increment planning, roadmap, overview
+│   ├── algorithms/                                 — per-component algorithm reference docs
+│   ├── planning/                                   — increment planning and roadmap
+│   ├── overview.md                                 — problem statement, design principles, licensing
+│   ├── architecture.md                             — Core layer call graphs, namespace map, algorithm doc index
 │   ├── body-data-schema.md                         — CelestialBody / OrbitalElements field reference
 │   └── commit-policy.md                            — commit and PR workflow policy
 ├── scripts/
@@ -95,7 +97,7 @@ cd src/Web ; npm run build
 
 See [`docs/planning/roadmap.md`](docs/planning/roadmap.md) for the full increment status table and one-line descriptions.
 
-Current state: increments 1a, 1b, 1c complete. Increments 2–9 not started.
+Current state: increments 1a, 1b, 1c, 2, 3 complete. Increment 3a in progress. Increments 4–9 not started.
 
 ---
 
@@ -127,8 +129,11 @@ When making code changes, update the corresponding `docs/` file **in the same co
 
 | Changed file(s) | Update this doc |
 |-----------------|----------------|
-| `LambertSolver.cs`, `KeplerSolver.cs` | [`docs/algorithms/lambert.md`](docs/algorithms/lambert.md) |
-| `ManeuverComputer.cs`, `TransferComputer.cs`, `PlaneChangeComputer.cs` | [`docs/algorithms/delta-v.md`](docs/algorithms/delta-v.md) |
+| `KeplerSolver.cs` | [`docs/algorithms/kepler.md`](docs/algorithms/kepler.md) |
+| `LambertSolver.cs` | [`docs/algorithms/lambert.md`](docs/algorithms/lambert.md) |
+| `ManeuverComputer.cs` | [`docs/algorithms/maneuver.md`](docs/algorithms/maneuver.md) |
+| `PlaneChangeComputer.cs` | [`docs/algorithms/plane-change.md`](docs/algorithms/plane-change.md) |
+| `TransferComputer.cs` | [`docs/algorithms/transfer.md`](docs/algorithms/transfer.md) |
 | `PorkchopComputer.cs`, `TransferType.cs` | [`docs/algorithms/porkchop.md`](docs/algorithms/porkchop.md) |
 | `CelestialBody.cs`, `OrbitalElements.cs`, `BodyDatabase.cs` | [`docs/body-data-schema.md`](docs/body-data-schema.md) |
 | Commit/PR workflow changes | [`docs/commit-policy.md`](docs/commit-policy.md) |

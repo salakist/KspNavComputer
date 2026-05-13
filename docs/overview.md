@@ -2,7 +2,7 @@
 
 > Cross-cutting decisions, architecture, and principles.
 > This section does not belong to any single increment.
-> See [`roadmap.md`](roadmap.md) for delivery status.
+> See [`roadmap.md`](planning/roadmap.md) for delivery status.
 
 ---
 
@@ -16,11 +16,8 @@ into Precise Maneuver. The app fills a real gap.
 
 ## Architecture
 
-- **Core library**: pure C# (.NET 8) class library, no web dependencies — contains all
-  orbital mechanics. Designed so it can later be consumed by both the desktop app and a
-  KSP plugin.
-- **Backend**: ASP.NET Core 8 API wrapping the core library.
-- **Frontend**: Vite + React + TypeScript, communicating with the local API.
+See [architecture.md](architecture.md) for the Core layer call graph and component map.
+The overall stack is: Core library (C# .NET 8) ← ASP.NET Core 8 API ← Vite + React + TypeScript frontend.
 
 ---
 
@@ -56,7 +53,7 @@ into Precise Maneuver. The app fills a real gap.
   only for display and input.
 - Lambert solver: planned as 0-revolution elliptical solutions only.
   *Actual: multi-revolution Sun/Gooding (1979) implemented from the start — see
-  [increment-1a.md](increments/increment-1a.md) actuals.*
+  [increment-1a.md](planning/increments/increment-1a.md) actuals.*
 
 ---
 
@@ -79,4 +76,4 @@ into Precise Maneuver. The app fills a real gap.
 
 ## Credits and references
 
-See [README.md — Credits and inspirations](../../README.md#credits-and-inspirations) for the full reference list.
+See [README.md — Credits and inspirations](../README.md#credits-and-inspirations) for the full reference list.

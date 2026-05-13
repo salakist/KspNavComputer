@@ -68,10 +68,12 @@ Root-finding uses **Brent's method** (500-iteration cap):
 The maximum revolution count is capped at `min(maxRevs, floor(normalizedTime / π))`.
 `TransferComputer` calls with `maxRevs = 10`.
 
-For each N ≥ 1, the minimum-time solution `xMT` (where $\partial\tau/\partial x = 0$) is
-found first by solving $\Phi(x) = \Phi(y) + N\pi = 0$. If the requested TOF falls below
-this minimum, no solution exists for that N and iteration stops. Otherwise Brent's method
-is applied to both `(0, xMT)` and `(xMT, 1)` intervals.
+For the **final** revolution count only (`N == maxRevsCapped`, N > 0), the minimum-time
+solution `xMT` (where $\partial\tau/\partial x = 0$) is found first by solving
+$\Phi(x) - \Phi(y) + N\pi = 0$. If the requested TOF falls below this minimum, the loop
+terminates. If TOF is below the minimum-energy time, Brent's method is applied to
+`(0, xMT)` and `(xMT, 1)`. For intermediate counts (1 ≤ N < maxRevsCapped) both full
+intervals `(−1, 0)` and `(0, 1)` are searched directly, without an xMT pre-check.
 
 ---
 
